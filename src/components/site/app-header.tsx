@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+
+import { LocaleSwitcher } from "@/components/site/locale-switcher";
 
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +32,7 @@ export function AppHeader() {
           <Button asChild size="sm" className="ml-1">
             <Link href="/workouts/new">Create WOD</Link>
           </Button>
+          <LocaleSwitcher />
         </nav>
       </div>
     </header>

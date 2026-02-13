@@ -1,6 +1,6 @@
-import Link from "next/link";
-
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { LocaleSwitcher } from "./locale-switcher";
 
 const navItems = [
   { href: "/workouts", label: "Workouts" },
@@ -33,6 +33,7 @@ export function SiteHeader() {
           <Button asChild size="sm">
             <Link href="/workouts/new">Start building</Link>
           </Button>
+          <LocaleSwitcher />
         </nav>
       </div>
     </header>
