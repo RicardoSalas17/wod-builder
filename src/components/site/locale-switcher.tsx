@@ -11,7 +11,19 @@ export function LocaleSwitcher() {
   const currentLocale =
     typeof params.locale === "string" ? params.locale : defaultLocale;
 
-  const basePath = pathname || "/";
+  const basePath = (() => {
+    if (!pathname) {
+      return "/";
+    }
+    const localePrefix = `/${currentLocale}`;
+    if (pathname === localePrefix) {
+      return "/";
+    }
+    if (pathname.startsWith(`${localePrefix}/`)) {
+      return pathname.slice(localePrefix.length);
+    }
+    return pathname;
+  })();
 
   return (
     <nav
