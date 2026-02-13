@@ -1,7 +1,6 @@
 import { Link } from "@/i18n/navigation";
-
 import { LocaleSwitcher } from "@/components/site/locale-switcher";
-
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 const appItems = [
@@ -33,6 +32,7 @@ export function AppHeader() {
             <Link href="/workouts/new">Create WOD</Link>
           </Button>
           <LocaleSwitcher />
+          <ThemeToggle />
         </nav>
       </div>
     </header>

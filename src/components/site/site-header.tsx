@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { LocaleSwitcher } from "./locale-switcher";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 
 const navItems = [
   { href: "/workouts", label: "Workouts" },
@@ -34,6 +35,7 @@ export function SiteHeader() {
             <Link href="/workouts/new">Start building</Link>
           </Button>
           <LocaleSwitcher />
+          <ThemeToggle />
         </nav>
       </div>
     </header>
