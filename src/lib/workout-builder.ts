@@ -22,7 +22,7 @@ type BuilderAction =
     };
 
 export const initialBuilderState: BuilderState = {
-  title: "Untitled WOD",
+  title: "",
   blocks: [],
 };
 
