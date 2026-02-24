@@ -1,7 +1,13 @@
 {
-    "marketing": {
-      "title": "Diseña WODs más rápido. Entrena con claridad.",
-      "subtitle": "Crea WODs listos para atletas con bloques claros, vista previa en vivo y un timer que habla tu idioma."
-    }
+  "marketing": {
+    "headline": "Diseña WODs con precisión. Entrena con intensidad.",
+    "subtitle": "Crea bloques de warm-up, strength y metcon en minutos. Previsualiza el flujo y usa un timer hecho para coaches.",
+    "strip": "Listo para coach. Probado en box. Hecho en México.",
+    "ctaPrimary": "Crear WOD",
+    "ctaSecondary": "Iniciar Timer",
+    "ctaTertiary": "Explorar WODs",
+    "tagBuilder": "Builder",
+    "tagTimer": "Timer",
+    "tagUnits": "Unidades"
   }
-  
+}

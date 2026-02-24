@@ -1,7 +1,13 @@
 {
-    "marketing": {
-      "title": "Design workouts faster. Coach with clarity.",
-      "subtitle": "Build athlete-ready WODs with a clean block system, live preview, and a timer that speaks your language."
-    }
+  "marketing": {
+    "headline": "Design WODs with precision. Coach with intensity.",
+    "subtitle": "Build warm-up, strength, and metcon blocks in minutes. Preview the flow live and run a timer built for coaches.",
+    "strip": "Coach-ready. Athlete-tested. Built in Mexico.",
+    "ctaPrimary": "Craft a WOD",
+    "ctaSecondary": "Run the Timer",
+    "ctaTertiary": "Explore Workouts",
+    "tagBuilder": "Builder",
+    "tagTimer": "Timer",
+    "tagUnits": "Units"
   }
-  
+}
