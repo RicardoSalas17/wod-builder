@@ -33,7 +33,10 @@
     "previewEmpty": "La vista previa aparecerá al agregar bloques.",
     "previewEmptyMovements": "Sin movimientos aún.",
     "previewUpdated": "Vista previa actualizada.",
-    "newMovement": "Nuevo movimiento"
+    "newMovement": "Nuevo movimiento",
+    "blockTitleLabel": "Título del bloque",
+    "moveMovementUp": "Mover movimiento arriba",
+    "moveMovementDown": "Mover movimiento abajo"
   },
   "nav": {
     "brand": "WOD Builder",

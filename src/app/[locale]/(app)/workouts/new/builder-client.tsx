@@ -9,6 +9,7 @@ const blockTypes = ['warmup', 'strength', 'metcon'] as const;
 type BuilderCopy = {
   subtitle: string;
   workoutTitleLabel: string;
+  blockTitleLabel: string;
   workoutTitlePlaceholder: string;
   workoutBuilderTitle: string;
   addBlock: string;
@@ -16,6 +17,8 @@ type BuilderCopy = {
   remove: string;
   moveUp: string;
   moveDown: string;
+  moveMovementUp: string;
+  moveMovementDown: string;
   movementName: string;
   load: string;
   reps: string;
@@ -100,7 +103,27 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                 {state.blocks.map((block, index) => (
                   <Card key={block.id} className="border-accent/60 border-2">
                     <CardHeader className="flex flex-row items-center justify-between gap-3">
-                      <CardTitle>{block.title}</CardTitle>
+                      <CardTitle className="w-full">
+                        <label
+                          className="sr-only"
+                          htmlFor={`block-title-${block.id}`}
+                        >
+                          {copy.blockTitleLabel}
+                        </label>
+                        <input
+                          id={`block-title-${block.id}`}
+                          className="focus-visible:ring-accent w-full bg-transparent text-base font-semibold focus-visible:ring-2 focus-visible:outline-none"
+                          value={block.title}
+                          onChange={(event) =>
+                            dispatch({
+                              type: 'update-block-title',
+                              blockId: block.id,
+                              title: event.target.value,
+                            })
+                          }
+                        />
+                      </CardTitle>
+
                       <div className="flex items-center gap-2">
                         <Button
                           size="icon"
@@ -155,7 +178,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                         </p>
                       ) : (
                         <div className="space-y-2">
-                          {block.movements.map((movement) => (
+                          {block.movements.map((movement, movementIndex) => (
                             <div
                               key={movement.id}
                               className="border-border/60 bg-background grid gap-2 rounded-lg border p-3 md:grid-cols-[1.4fr_0.8fr_0.8fr_auto]"
@@ -220,19 +243,57 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                                   })
                                 }
                               />
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  dispatch({
-                                    type: 'remove-movement',
-                                    blockId: block.id,
-                                    movementId: movement.id,
-                                  })
-                                }
-                              >
-                                {copy.remove}
-                              </Button>
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  title={copy.moveMovementUp}
+                                  aria-label={copy.moveMovementUp}
+                                  onClick={() =>
+                                    dispatch({
+                                      type: 'move-movement',
+                                      blockId: block.id,
+                                      movementId: movement.id,
+                                      direction: 'up',
+                                    })
+                                  }
+                                  disabled={movementIndex === 0}
+                                >
+                                  ↑
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  title={copy.moveMovementDown}
+                                  aria-label={copy.moveMovementDown}
+                                  onClick={() =>
+                                    dispatch({
+                                      type: 'move-movement',
+                                      blockId: block.id,
+                                      movementId: movement.id,
+                                      direction: 'down',
+                                    })
+                                  }
+                                  disabled={
+                                    movementIndex === block.movements.length - 1
+                                  }
+                                >
+                                  ↓
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() =>
+                                    dispatch({
+                                      type: 'remove-movement',
+                                      blockId: block.id,
+                                      movementId: movement.id,
+                                    })
+                                  }
+                                >
+                                  {copy.remove}
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>

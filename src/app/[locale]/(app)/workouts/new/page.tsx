@@ -37,6 +37,9 @@ export default async function NewWorkoutPage({
     blockWarmup: t('blockWarmup'),
     blockStrength: t('blockStrength'),
     blockMetcon: t('blockMetcon'),
+    blockTitleLabel: t('blockTitleLabel'),
+    moveMovementUp: t('moveMovementUp'),
+    moveMovementDown: t('moveMovementDown'),
   };
 
   return <BuilderClient copy={copy} />;
