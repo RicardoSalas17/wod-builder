@@ -1,7 +1,7 @@
 import { createId } from '@/domain/ids';
 import type { BlockType, Movement, WorkoutBlock } from '@/domain/workouts';
 
-type BuilderState = {
+export type BuilderState = {
   title: string;
   blocks: WorkoutBlock[];
 };
@@ -13,6 +13,7 @@ type BuilderAction =
   | { type: 'move-block'; blockId: string; direction: 'up' | 'down' }
   | { type: 'add-movement'; blockId: string }
   | { type: 'remove-movement'; blockId: string; movementId: string }
+  | { type: 'hydrate'; state: BuilderState }
   | {
       type: 'update-movement';
       blockId: string;
@@ -56,6 +57,8 @@ export function builderReducer(
   action: BuilderAction,
 ): BuilderState {
   switch (action.type) {
+    case 'hydrate':
+      return action.state;
     case 'set-title':
       return { ...state, title: action.title };
     case 'add-block':

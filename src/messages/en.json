@@ -36,7 +36,10 @@
     "newMovement": "New movement",
     "blockTitleLabel": "Block title",
     "moveMovementUp": "Move movement up",
-    "moveMovementDown": "Move movement down"
+    "moveMovementDown": "Move movement down",
+    "exportJson": "Export JSON",
+    "clearDraft": "Clear draft",
+    "clearConfirm": "Clear the current draft? This cannot be undone."
   },
   "nav": {
     "brand": "WOD Builder",

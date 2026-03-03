@@ -40,6 +40,9 @@ export default async function NewWorkoutPage({
     blockTitleLabel: t('blockTitleLabel'),
     moveMovementUp: t('moveMovementUp'),
     moveMovementDown: t('moveMovementDown'),
+    exportJson: t('exportJson'),
+    clearDraft: t('clearDraft'),
+    clearConfirm: t('clearConfirm'),
   };
 
   return <BuilderClient copy={copy} />;

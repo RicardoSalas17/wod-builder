@@ -19,6 +19,9 @@ type BuilderCopy = {
   moveDown: string;
   moveMovementUp: string;
   moveMovementDown: string;
+  exportJson: string;
+  clearDraft: string;
+  clearConfirm: string;
   movementName: string;
   load: string;
   reps: string;
@@ -39,11 +42,40 @@ type BuilderClientProps = {
 };
 
 export function BuilderClient({ copy }: BuilderClientProps) {
-  const { state, dispatch } = useWorkoutBuilder();
+  const { state, dispatch, reset } = useWorkoutBuilder();
   const blockTitles = {
     warmup: copy.blockWarmup,
     strength: copy.blockStrength,
     metcon: copy.blockMetcon,
+  };
+  const handleExport = () => {
+    const title = state.title || copy.workoutTitlePlaceholder;
+    const slug = title
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const filename = `${slug || "wod"}.json`;
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      workout: state,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+  const handleClear = () => {
+    if (window.confirm(copy.clearConfirm)) {
+      reset();
+    }
   };
 
   return (
@@ -66,6 +98,14 @@ export function BuilderClient({ copy }: BuilderClientProps) {
             }
             placeholder={copy.workoutTitlePlaceholder}
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={handleExport}>
+            {copy.exportJson}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={handleClear}>
+            {copy.clearDraft}
+          </Button>
         </div>
       </header>
 
