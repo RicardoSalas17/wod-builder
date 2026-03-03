@@ -1,6 +1,5 @@
 import { createId } from "@/domain/ids";
 import type { BlockType, Movement, WorkoutBlock } from "@/domain/workouts";
-import { blockLabelMap } from "@/domain/workouts-helpers";
 
 type BuilderState = {
   title: string;
@@ -9,7 +8,7 @@ type BuilderState = {
 
 type BuilderAction =
   | { type: "set-title"; title: string }
-  | { type: "add-block"; blockType: BlockType }
+  | { type: "add-block"; blockType: BlockType; title: string }
   | { type: "remove-block"; blockId: string }
   | { type: "move-block"; blockId: string; direction: "up" | "down" }
   | { type: "add-movement"; blockId: string }
@@ -26,11 +25,11 @@ export const initialBuilderState: BuilderState = {
   blocks: [],
 };
 
-function createBlock(type: BlockType): WorkoutBlock {
+function createBlock(type: BlockType, title: string): WorkoutBlock {
   return {
     id: createId("block"),
     type,
-    title: blockLabelMap[type],
+    title,
     movements: [],
   };
 }
@@ -53,7 +52,10 @@ export function builderReducer(
     case "set-title":
       return { ...state, title: action.title };
     case "add-block":
-      return { ...state, blocks: [...state.blocks, createBlock(action.blockType)] };
+      return {
+        ...state,
+        blocks: [...state.blocks, createBlock(action.blockType, action.title)],
+      };
     case "remove-block":
       return {
         ...state,

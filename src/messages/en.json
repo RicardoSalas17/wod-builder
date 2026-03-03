@@ -9,5 +9,39 @@
     "tagBuilder": "Builder",
     "tagTimer": "Timer",
     "tagUnits": "Units"
+  },
+  "builder": {
+    "title": "Build a new WOD",
+    "workoutBuilderTitle": "Workout builder",
+    "subtitle": "Create workout",
+    "workoutTitleLabel": "Workout title",
+    "workoutTitlePlaceholder": "Untitled WOD",
+    "blockWarmup": "Warm-up",
+    "blockStrength": "Strength",
+    "blockMetcon": "Metcon",
+    "addBlock": "Add",
+    "addMovement": "Add movement",
+    "remove": "Remove",
+    "moveUp": "Move block up",
+    "moveDown": "Move block down",
+    "movementName": "Movement name",
+    "load": "Load",
+    "reps": "Reps",
+    "emptyBlocks": "Add a block to start building your workout.",
+    "emptyMovements": "No movements yet. Add the first one.",
+    "previewTitle": "Live preview",
+    "previewEmpty": "Preview will appear here as you add blocks.",
+    "previewEmptyMovements": "No movements yet.",
+    "previewUpdated": "Preview updated.",
+    "newMovement": "New movement"
+  },
+  "nav": {
+    "brand": "WOD Builder",
+    "workouts": "Workouts",
+    "create": "Create",
+    "startBuilding": "Start building",
+    "allWorkouts": "All workouts",
+    "newWorkout": "New workout",
+    "createWod": "Create WOD"
   }
 }

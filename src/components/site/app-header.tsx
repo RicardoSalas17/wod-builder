@@ -1,19 +1,22 @@
+import { getTranslations } from "next-intl/server";
+
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/site/locale-switcher";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import { Button } from "@/components/ui/button";
 
-const appItems = [
-  { href: "/workouts", label: "All workouts" },
-  { href: "/workouts/new", label: "New workout" },
-];
+export async function AppHeader() {
+  const t = await getTranslations("nav");
+  const appItems = [
+    { href: "/workouts", label: t("allWorkouts") },
+    { href: "/workouts/new", label: t("newWorkout") },
+  ];
 
-export function AppHeader() {
   return (
     <header className="border-b border-border/80 bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link href="/" className="text-base font-semibold text-foreground">
-          WOD Builder
+          {t("brand")}
         </Link>
         <nav
           aria-label="Workouts"
@@ -29,7 +32,7 @@ export function AppHeader() {
             </Link>
           ))}
           <Button asChild size="sm" className="ml-1">
-            <Link href="/workouts/new">Create WOD</Link>
+            <Link href="/workouts/new">{t("createWod")}</Link>
           </Button>
           <LocaleSwitcher />
           <ThemeToggle />
