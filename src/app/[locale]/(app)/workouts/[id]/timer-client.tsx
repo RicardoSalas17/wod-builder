@@ -56,8 +56,20 @@ export function TimerClient({ copy }: TimerClientProps) {
     'idle' | 'running' | 'paused' | 'finished'
   >('idle');
   const [announcement, setAnnouncement] = useState('');
-
   const [soundEnabled, setSoundEnabled] = useState(false);
+
+  const modeLabel =
+    mode === 'emom' ? copy.emom : mode === 'amrap' ? copy.amrap : copy.forTime;
+
+  const statusChipClass = {
+    idle: 'border-border/60 bg-background text-muted-foreground',
+    running: 'border-accent/60 bg-accent/10 text-accent',
+    paused: 'border-border/60 bg-muted/40 text-muted-foreground',
+    finished: 'border-foreground bg-foreground text-background',
+  }[status];
+
+  const modeChipClass = 'border-accent/60 bg-accent/10 text-accent';
+
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const ensureAudioContext = async () => {
@@ -189,23 +201,23 @@ export function TimerClient({ copy }: TimerClientProps) {
               { value: 'amrap', label: copy.amrap },
               { value: 'fortime', label: copy.forTime },
             ].map((item) => (
-              <label
-                key={item.value}
-                className="border-border/60 flex items-center gap-2 rounded-full border px-3 py-1 text-sm"
-              >
-                <input
-                  type="radio"
-                  name="timer-mode"
-                  value={item.value}
-                  checked={mode === item.value}
-                  onChange={() => {
-                    setMode(item.value as TimerMode);
-                    setElapsed(0);
-                    setStatus('idle');
-                  }}
-                />
+              <label  key={item.value} className="cursor-pointer">
+              <input
+                type="radio"
+                name="timer-mode"
+                value={item.value}
+                checked={mode === item.value}
+                onChange={() => {
+                  setMode(item.value as TimerMode);
+                  setElapsed(0);
+                  setStatus("idle");
+                }}
+                className="peer sr-only"
+              />
+              <span className="inline-flex items-center rounded-full border border-border/60 px-3 py-1 text-sm transition peer-checked:border-accent/60 peer-checked:bg-accent/10 peer-checked:text-accent peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-accent">
                 {item.label}
-              </label>
+              </span>
+            </label>
             ))}
           </div>
         </fieldset>
@@ -264,6 +276,12 @@ export function TimerClient({ copy }: TimerClientProps) {
           <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
             {mode === 'fortime' ? copy.timeElapsed : copy.timeRemaining}
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[0.65rem] font-semibold tracking-[0.2em] uppercase">
+            <span className={`rounded-full border px-3 py-1 ${modeChipClass}`}>
+              {modeLabel}
+            </span>
+          </div>
+
           <div className="mt-2 text-4xl font-semibold">{displayTime}</div>
           {roundInfo && (
             <p className="text-muted-foreground mt-2 text-sm">
