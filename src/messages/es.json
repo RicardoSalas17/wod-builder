@@ -39,7 +39,10 @@
     "moveMovementDown": "Mover movimiento abajo",
     "exportJson": "Exportar JSON",
     "clearDraft": "Borrar borrador",
-    "clearConfirm": "¿Borrar el borrador actual? Esta acción no se puede deshacer."
+    "clearConfirm": "¿Borrar el borrador actual? Esta acción no se puede deshacer.",
+    "importJson": "Importar JSON",
+    "importSuccess": "Borrador importado",
+    "importError": "Archivo inválido. Usa un export del WOD Builder."
   },
   "nav": {
     "brand": "WOD Builder",

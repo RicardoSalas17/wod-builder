@@ -39,7 +39,10 @@
     "moveMovementDown": "Move movement down",
     "exportJson": "Export JSON",
     "clearDraft": "Clear draft",
-    "clearConfirm": "Clear the current draft? This cannot be undone."
+    "clearConfirm": "Clear the current draft? This cannot be undone.",
+    "importJson": "Import JSON",
+    "importSuccess": "Draft imported",
+    "importError": "Invalid file. Please choose a WOD Builder export."
   },
   "nav": {
     "brand": "WOD Builder",

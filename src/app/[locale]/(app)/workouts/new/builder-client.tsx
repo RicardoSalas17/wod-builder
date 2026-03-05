@@ -1,4 +1,5 @@
 'use client';
+import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +36,9 @@ type BuilderCopy = {
   blockWarmup: string;
   blockStrength: string;
   blockMetcon: string;
+  importSuccess: string;
+  importError: string;
+  importJson: string;
 };
 
 type BuilderClientProps = {
@@ -42,31 +46,61 @@ type BuilderClientProps = {
 };
 
 export function BuilderClient({ copy }: BuilderClientProps) {
+  const [importMessage, setImportMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const { state, dispatch, reset } = useWorkoutBuilder();
   const blockTitles = {
     warmup: copy.blockWarmup,
     strength: copy.blockStrength,
     metcon: copy.blockMetcon,
   };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const candidate = parsed?.workout ?? parsed;
+
+      if (
+        !candidate ||
+        typeof candidate.title !== 'string' ||
+        !Array.isArray(candidate.blocks)
+      ) {
+        throw new Error('invalid');
+      }
+
+      dispatch({ type: 'hydrate', state: candidate });
+      setImportMessage(copy.importSuccess);
+    } catch {
+      setImportMessage(copy.importError);
+    } finally {
+      event.target.value = '';
+    }
+  };
+
   const handleExport = () => {
     const title = state.title || copy.workoutTitlePlaceholder;
     const slug = title
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    const filename = `${slug || "wod"}.json`;
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const filename = `${slug || 'wod'}.json`;
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
       workout: state,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
+      type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
+    const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = filename;
     anchor.click();
@@ -103,9 +137,26 @@ export function BuilderClient({ copy }: BuilderClientProps) {
           <Button size="sm" variant="outline" onClick={handleExport}>
             {copy.exportJson}
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {copy.importJson}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            className="sr-only"
+            onChange={handleImport}
+          />
           <Button size="sm" variant="ghost" onClick={handleClear}>
             {copy.clearDraft}
           </Button>
+          <p className="sr-only" aria-live="polite">
+            {importMessage}
+          </p>
         </div>
       </header>
 
