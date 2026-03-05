@@ -42,6 +42,9 @@ export default async function WorkoutDetailPage({
     announceReset: t('announceReset'),
     announceTen: t('announceTen'),
     announceComplete: t('announceComplete'),
+    soundToggle: t('soundToggle'),
+    soundOn: t('soundOn'),
+    soundOff: t('soundOff'),
   };
 
   return (

@@ -73,7 +73,10 @@
     "announcePause": "Timer pausado",
     "announceReset": "Timer reiniciado",
     "announceTen": "Quedan 10 segundos",
-    "announceComplete": "Tiempo terminado"
+    "announceComplete": "Tiempo terminado",
+    "soundToggle": "Alternar sonido",
+    "soundOn": "Sonido activado",
+    "soundOff": "Sonido desactivado"
   },
   "workoutDetail": {
     "title": "Detalle del entrenamiento",

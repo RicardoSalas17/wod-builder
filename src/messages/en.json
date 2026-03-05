@@ -73,7 +73,10 @@
     "announcePause": "Timer paused",
     "announceReset": "Timer reset",
     "announceTen": "10 seconds remaining",
-    "announceComplete": "Time is up"
+    "announceComplete": "Time is up",
+    "soundToggle": "Toggle sound",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
   },
   "workoutDetail": {
     "title": "Workout detail",
