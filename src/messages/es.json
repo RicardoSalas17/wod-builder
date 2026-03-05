@@ -49,5 +49,40 @@
     "allWorkouts": "Todos los WODs",
     "newWorkout": "Nuevo WOD",
     "createWod": "Crear WOD"
+  },
+  "timer": {
+    "title": "Timer",
+    "mode": "Modo",
+    "emom": "EMOM",
+    "amrap": "AMRAP",
+    "forTime": "For Time",
+    "intervalSeconds": "Intervalo (seg)",
+    "rounds": "Rondas",
+    "durationMinutes": "Duración (min)",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "reset": "Reiniciar",
+    "statusIdle": "Listo",
+    "statusRunning": "En curso",
+    "statusPaused": "Pausado",
+    "statusFinished": "Finalizado",
+    "roundLabel": "Ronda",
+    "timeRemaining": "Tiempo restante",
+    "timeElapsed": "Tiempo transcurrido",
+    "announceStart": "Timer iniciado",
+    "announcePause": "Timer pausado",
+    "announceReset": "Timer reiniciado",
+    "announceTen": "Quedan 10 segundos",
+    "announceComplete": "Tiempo terminado"
+  },
+  "workoutDetail": {
+    "title": "Detalle del entrenamiento",
+    "duplicate": "Duplicar",
+    "edit": "Editar WOD",
+    "blocksTitle": "Bloques del WOD",
+    "blocksEmpty": "Los bloques aparecerán cuando exista persistencia.",
+    "placeholder": "Placeholder",
+    "placeholderBody": "Aquí mostraremos warm-up, fuerza y metcon.",
+    "back": "Volver a entrenamientos"
   }
 }

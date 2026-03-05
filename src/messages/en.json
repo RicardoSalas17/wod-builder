@@ -49,5 +49,40 @@
     "allWorkouts": "All workouts",
     "newWorkout": "New workout",
     "createWod": "Create WOD"
+  },
+  "timer": {
+    "title": "Timer",
+    "mode": "Mode",
+    "emom": "EMOM",
+    "amrap": "AMRAP",
+    "forTime": "For Time",
+    "intervalSeconds": "Interval (sec)",
+    "rounds": "Rounds",
+    "durationMinutes": "Duration (min)",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset",
+    "statusIdle": "Ready",
+    "statusRunning": "Running",
+    "statusPaused": "Paused",
+    "statusFinished": "Finished",
+    "roundLabel": "Round",
+    "timeRemaining": "Time remaining",
+    "timeElapsed": "Time elapsed",
+    "announceStart": "Timer started",
+    "announcePause": "Timer paused",
+    "announceReset": "Timer reset",
+    "announceTen": "10 seconds remaining",
+    "announceComplete": "Time is up"
+  },
+  "workoutDetail": {
+    "title": "Workout detail",
+    "duplicate": "Duplicate",
+    "edit": "Edit WOD",
+    "blocksTitle": "Workout blocks",
+    "blocksEmpty": "Blocks will render here once persistence is wired.",
+    "placeholder": "Placeholder",
+    "placeholderBody": "We will show warm-up, strength, and metcon blocks here.",
+    "back": "Back to workouts"
   }
 }
