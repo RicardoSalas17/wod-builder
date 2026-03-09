@@ -89,6 +89,20 @@
     "blocksEmpty": "Blocks will render here once persistence is wired.",
     "placeholder": "Placeholder",
     "placeholderBody": "We will show warm-up, strength, and metcon blocks here.",
-    "back": "Back to workouts"
+    "back": "Back to workouts",
+    "untitled": "Untitled WOD",
+    "movementsLabel": "Movements",
+    "movementsEmpty": "No movements yet."
+  },
+  "workouts": {
+    "title": "Workouts",
+    "subtitle": "Your workout library",
+    "create": "Create WOD",
+    "emptyTitle": "No workouts yet",
+    "emptyBody": "Start by creating your first workout. You can add blocks for warm-up, strength, and metcon, then preview the full flow.",
+    "emptyCta": "Build your first WOD",
+    "updatedLabel": "Updated",
+    "open": "Open workout",
+    "untitled": "Untitled WOD"
   }
 }

@@ -1,9 +1,14 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { BlockType } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TimerClient } from './timer-client';
 import { Link } from '@/i18n/navigation';
+import { getWorkoutById } from '@/data/workouts';
+import { TimerClient } from './timer-client';
+
+export const dynamic = 'force-dynamic';
 
 type WorkoutDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
@@ -15,36 +20,50 @@ export default async function WorkoutDetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations({ locale, namespace: 'timer' });
-  const tDetail = await getTranslations({ locale, namespace: 'workoutDetail' });
+  const [tTimer, tDetail, tBuilder] = await Promise.all([
+    getTranslations({ locale, namespace: 'timer' }),
+    getTranslations({ locale, namespace: 'workoutDetail' }),
+    getTranslations({ locale, namespace: 'builder' }),
+  ]);
+
+  const workout = await getWorkoutById(id);
+  if (!workout) {
+    notFound();
+  }
+
+  const blockLabels: Record<BlockType, string> = {
+    WARMUP: tBuilder('blockWarmup'),
+    STRENGTH: tBuilder('blockStrength'),
+    METCON: tBuilder('blockMetcon'),
+  };
 
   const timerCopy = {
-    title: t('title'),
-    mode: t('mode'),
-    emom: t('emom'),
-    amrap: t('amrap'),
-    forTime: t('forTime'),
-    intervalSeconds: t('intervalSeconds'),
-    rounds: t('rounds'),
-    durationMinutes: t('durationMinutes'),
-    start: t('start'),
-    pause: t('pause'),
-    reset: t('reset'),
-    statusIdle: t('statusIdle'),
-    statusRunning: t('statusRunning'),
-    statusPaused: t('statusPaused'),
-    statusFinished: t('statusFinished'),
-    roundLabel: t('roundLabel'),
-    timeRemaining: t('timeRemaining'),
-    timeElapsed: t('timeElapsed'),
-    announceStart: t('announceStart'),
-    announcePause: t('announcePause'),
-    announceReset: t('announceReset'),
-    announceTen: t('announceTen'),
-    announceComplete: t('announceComplete'),
-    soundToggle: t('soundToggle'),
-    soundOn: t('soundOn'),
-    soundOff: t('soundOff'),
+    title: tTimer('title'),
+    mode: tTimer('mode'),
+    emom: tTimer('emom'),
+    amrap: tTimer('amrap'),
+    forTime: tTimer('forTime'),
+    intervalSeconds: tTimer('intervalSeconds'),
+    rounds: tTimer('rounds'),
+    durationMinutes: tTimer('durationMinutes'),
+    start: tTimer('start'),
+    pause: tTimer('pause'),
+    reset: tTimer('reset'),
+    statusIdle: tTimer('statusIdle'),
+    statusRunning: tTimer('statusRunning'),
+    statusPaused: tTimer('statusPaused'),
+    statusFinished: tTimer('statusFinished'),
+    roundLabel: tTimer('roundLabel'),
+    timeRemaining: tTimer('timeRemaining'),
+    timeElapsed: tTimer('timeElapsed'),
+    announceStart: tTimer('announceStart'),
+    announcePause: tTimer('announcePause'),
+    announceReset: tTimer('announceReset'),
+    announceTen: tTimer('announceTen'),
+    announceComplete: tTimer('announceComplete'),
+    soundToggle: tTimer('soundToggle'),
+    soundOn: tTimer('soundOn'),
+    soundOff: tTimer('soundOff'),
   };
 
   return (
@@ -52,7 +71,9 @@ export default async function WorkoutDetailPage({
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-muted-foreground text-sm">{tDetail('title')}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">WOD #{id}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {workout.title || tDetail('untitled')}
+          </h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline">
@@ -67,19 +88,86 @@ export default async function WorkoutDetailPage({
           <CardHeader>
             <CardTitle>{tDetail('blocksTitle')}</CardTitle>
           </CardHeader>
-          <CardContent className="text-muted-foreground space-y-3 text-sm">
-            <p>{tDetail('blocksEmpty')}</p>
-            <div className="border-border/70 bg-background rounded-xl border border-dashed p-4">
-              <p className="text-muted-foreground text-xs tracking-wide uppercase">
-                {tDetail('placeholder')}
-              </p>
-              <p className="mt-2 text-sm">{tDetail('placeholderBody')}</p>
-            </div>
+          <CardContent className="space-y-4 text-sm">
+            {workout.blocks.length === 0 ? (
+              <p className="text-muted-foreground">{tDetail('blocksEmpty')}</p>
+            ) : (
+              <div className="space-y-4">
+                {workout.blocks.map((block) => {
+                  const blockLabel = blockLabels[block.type];
+                  return (
+                    <div
+                      key={block.id}
+                      className="border-border/60 bg-background/60 rounded-xl border p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                            {blockLabel}
+                          </p>
+                          <h3 className="text-base font-semibold">
+                            {block.title || blockLabel}
+                          </h3>
+                        </div>
+                        <span className="text-muted-foreground text-xs">
+                          {tDetail('movementsLabel')}: {block.movements.length}
+                        </span>
+                      </div>
+
+                      {block.movements.length === 0 ? (
+                        <p className="text-muted-foreground mt-3 text-xs">
+                          {tDetail('movementsEmpty')}
+                        </p>
+                      ) : (
+                        <ul className="mt-3 space-y-2">
+                          {block.movements.map((movement) => {
+                            const meta = [
+                              movement.load
+                                ? `${tBuilder('load')}: ${movement.load}`
+                                : null,
+                              movement.reps
+                                ? `${tBuilder('reps')}: ${movement.reps}`
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(' • ');
+
+                            return (
+                              <li
+                                key={movement.id}
+                                className="flex flex-wrap items-center justify-between gap-2"
+                              >
+                                <div>
+                                  <p className="text-foreground font-medium">
+                                    {movement.name}
+                                  </p>
+                                  {movement.notes ? (
+                                    <p className="text-muted-foreground text-xs">
+                                      {movement.notes}
+                                    </p>
+                                  ) : null}
+                                </div>
+                                {meta ? (
+                                  <span className="text-muted-foreground text-xs">
+                                    {meta}
+                                  </span>
+                                ) : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <TimerClient copy={timerCopy} />
       </div>
+
       <Button asChild size="sm" variant="ghost">
         <Link href="/workouts">{tDetail('back')}</Link>
       </Button>

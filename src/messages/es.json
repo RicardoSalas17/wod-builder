@@ -89,6 +89,20 @@
     "blocksEmpty": "Los bloques aparecerán cuando exista persistencia.",
     "placeholder": "Placeholder",
     "placeholderBody": "Aquí mostraremos warm-up, fuerza y metcon.",
-    "back": "Volver a entrenamientos"
+    "back": "Volver a entrenamientos",
+    "untitled": "WOD sin título",
+    "movementsLabel": "Movimientos",
+    "movementsEmpty": "Aún no hay movimientos."
+  },
+  "workouts": {
+    "title": "Entrenamientos",
+    "subtitle": "Tu biblioteca de WODs",
+    "create": "Crear WOD",
+    "emptyTitle": "Aún no hay WODs",
+    "emptyBody": "Empieza creando tu primer WOD. Puedes agregar bloques de calentamiento, fuerza y metcon, y previsualizar el flujo.",
+    "emptyCta": "Crear mi primer WOD",
+    "updatedLabel": "Actualizado",
+    "open": "Abrir WOD",
+    "untitled": "WOD sin título"
   }
 }
