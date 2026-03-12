@@ -4,6 +4,10 @@ import { useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  MovementLoadField,
+  type WeightPickerCopy,
+} from '@/components/weight-picker/MovementLoadField';
 import { useWorkoutBuilder } from '@/hooks/use-workout-builder';
 import type { BuilderState } from '@/lib/workout-builder';
 
@@ -34,6 +38,8 @@ type BuilderCopy = {
   clearConfirm: string;
   movementName: string;
   load: string;
+  notes: string;
+  notesPlaceholder: string;
   reps: string;
   emptyBlocks: string;
   emptyMovements: string;
@@ -52,6 +58,7 @@ type BuilderCopy = {
   saving: string;
   saveSuccess: string;
   saveError: string;
+  weightPicker: WeightPickerCopy;
 };
 
 type BuilderClientProps = {
@@ -247,6 +254,13 @@ export function BuilderClient({
             </div>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
+            <MovementLoadField
+              copy={copy.weightPicker}
+              demo
+              movementId="builder-weight-demo"
+              movementName={copy.newMovement}
+            />
+
             <div className="flex flex-wrap gap-2">
               {blockTypes.map((type) => (
                 <Button
@@ -365,119 +379,137 @@ export function BuilderClient({
                           {block.movements.map((movement, movementIndex) => (
                             <div
                               key={movement.id}
-                              className="grid gap-2 rounded-[1.35rem] border border-white/8 bg-black/10 p-4 md:grid-cols-[1.4fr_0.8fr_0.8fr_auto]"
+                              className="space-y-4 rounded-[1.35rem] border border-white/8 bg-black/10 p-4"
                             >
-                              <label
-                                className="sr-only"
-                                htmlFor={`${movement.id}-name`}
-                              >
-                                {copy.movementName}
-                              </label>
-                              <input
-                                id={`${movement.id}-name`}
-                                className="field-input rounded-xl px-3 py-2.5"
-                                placeholder={copy.movementName}
-                                value={movement.name}
-                                onChange={(event) =>
-                                  dispatch({
-                                    type: 'update-movement',
-                                    blockId: block.id,
-                                    movementId: movement.id,
-                                    patch: { name: event.target.value },
-                                  })
-                                }
-                              />
-                              <label
-                                className="sr-only"
-                                htmlFor={`${movement.id}-load`}
-                              >
-                                {copy.load}
-                              </label>
-                              <input
-                                id={`${movement.id}-load`}
-                                className="field-input rounded-xl px-3 py-2.5"
-                                placeholder={copy.load}
-                                value={movement.load}
-                                onChange={(event) =>
-                                  dispatch({
-                                    type: 'update-movement',
-                                    blockId: block.id,
-                                    movementId: movement.id,
-                                    patch: { load: event.target.value },
-                                  })
-                                }
-                              />
-                              <label
-                                className="sr-only"
-                                htmlFor={`${movement.id}-reps`}
-                              >
-                                {copy.reps}
-                              </label>
-                              <input
-                                id={`${movement.id}-reps`}
-                                className="field-input rounded-xl px-3 py-2.5"
-                                placeholder={copy.reps}
-                                value={movement.reps}
-                                onChange={(event) =>
-                                  dispatch({
-                                    type: 'update-movement',
-                                    blockId: block.id,
-                                    movementId: movement.id,
-                                    patch: { reps: event.target.value },
-                                  })
-                                }
-                              />
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  title={copy.moveMovementUp}
-                                  aria-label={copy.moveMovementUp}
-                                  onClick={() =>
+                              <div className="grid gap-2 md:grid-cols-[1.4fr_0.8fr_auto]">
+                                <label
+                                  className="sr-only"
+                                  htmlFor={`${movement.id}-name`}
+                                >
+                                  {copy.movementName}
+                                </label>
+                                <input
+                                  id={`${movement.id}-name`}
+                                  className="field-input rounded-xl px-3 py-2.5"
+                                  placeholder={copy.movementName}
+                                  value={movement.name}
+                                  onChange={(event) =>
                                     dispatch({
-                                      type: 'move-movement',
+                                      type: 'update-movement',
                                       blockId: block.id,
                                       movementId: movement.id,
-                                      direction: 'up',
+                                      patch: { name: event.target.value },
                                     })
                                   }
-                                  disabled={movementIndex === 0}
+                                />
+                                <label
+                                  className="sr-only"
+                                  htmlFor={`${movement.id}-reps`}
                                 >
-                                  ↑
-                                </Button>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  title={copy.moveMovementDown}
-                                  aria-label={copy.moveMovementDown}
-                                  onClick={() =>
+                                  {copy.reps}
+                                </label>
+                                <input
+                                  id={`${movement.id}-reps`}
+                                  className="field-input rounded-xl px-3 py-2.5"
+                                  placeholder={copy.reps}
+                                  value={movement.reps}
+                                  onChange={(event) =>
                                     dispatch({
-                                      type: 'move-movement',
+                                      type: 'update-movement',
                                       blockId: block.id,
                                       movementId: movement.id,
-                                      direction: 'down',
+                                      patch: { reps: event.target.value },
                                     })
                                   }
-                                  disabled={
-                                    movementIndex === block.movements.length - 1
-                                  }
-                                >
-                                  ↓
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() =>
-                                    dispatch({
-                                      type: 'remove-movement',
-                                      blockId: block.id,
-                                      movementId: movement.id,
-                                    })
-                                  }
-                                >
-                                  {copy.remove}
-                                </Button>
+                                />
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    title={copy.moveMovementUp}
+                                    aria-label={copy.moveMovementUp}
+                                    onClick={() =>
+                                      dispatch({
+                                        type: 'move-movement',
+                                        blockId: block.id,
+                                        movementId: movement.id,
+                                        direction: 'up',
+                                      })
+                                    }
+                                    disabled={movementIndex === 0}
+                                  >
+                                    ↑
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    title={copy.moveMovementDown}
+                                    aria-label={copy.moveMovementDown}
+                                    onClick={() =>
+                                      dispatch({
+                                        type: 'move-movement',
+                                        blockId: block.id,
+                                        movementId: movement.id,
+                                        direction: 'down',
+                                      })
+                                    }
+                                    disabled={
+                                      movementIndex ===
+                                      block.movements.length - 1
+                                    }
+                                  >
+                                    ↓
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() =>
+                                      dispatch({
+                                        type: 'remove-movement',
+                                        blockId: block.id,
+                                        movementId: movement.id,
+                                      })
+                                    }
+                                  >
+                                    {copy.remove}
+                                  </Button>
+                                </div>
                               </div>
+
+                              <label
+                                className="sr-only"
+                                htmlFor={`${movement.id}-notes`}
+                              >
+                                {copy.notes}
+                              </label>
+                              <textarea
+                                id={`${movement.id}-notes`}
+                                className="field-input min-h-24 rounded-[1.15rem]"
+                                placeholder={copy.notesPlaceholder}
+                                value={movement.notes ?? ''}
+                                onChange={(event) =>
+                                  dispatch({
+                                    type: 'update-movement',
+                                    blockId: block.id,
+                                    movementId: movement.id,
+                                    patch: { notes: event.target.value },
+                                  })
+                                }
+                              />
+
+                              <MovementLoadField
+                                copy={copy.weightPicker}
+                                movementId={movement.id}
+                                movementName={movement.name || copy.newMovement}
+                                onLoadSummaryChange={(summary) =>
+                                  dispatch({
+                                    type: 'update-movement',
+                                    blockId: block.id,
+                                    movementId: movement.id,
+                                    patch: { load: summary },
+                                  })
+                                }
+                              />
                             </div>
                           ))}
                         </div>
