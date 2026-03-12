@@ -1,23 +1,27 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import { Link, usePathname } from "@/i18n/navigation";
-import { defaultLocale, locales } from "@/i18n/routing";
-import { cn } from "@/lib/utils";
+import { useParams } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
+import { defaultLocale, locales } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 
-export function LocaleSwitcher() {
+type LocaleSwitcherProps = {
+  label: string;
+};
+
+export function LocaleSwitcher({ label }: LocaleSwitcherProps) {
   const pathname = usePathname();
   const params = useParams();
   const currentLocale =
-    typeof params.locale === "string" ? params.locale : defaultLocale;
+    typeof params.locale === 'string' ? params.locale : defaultLocale;
 
   const basePath = (() => {
     if (!pathname) {
-      return "/";
+      return '/';
     }
     const localePrefix = `/${currentLocale}`;
     if (pathname === localePrefix) {
-      return "/";
+      return '/';
     }
     if (pathname.startsWith(`${localePrefix}/`)) {
       return pathname.slice(localePrefix.length);
@@ -27,8 +31,8 @@ export function LocaleSwitcher() {
 
   return (
     <nav
-      aria-label="Language"
-      className="flex items-center rounded-full border border-border/60 bg-background/70 p-1 text-xs"
+      aria-label={label}
+      className="flex items-center rounded-full border border-white/10 bg-white/5 p-1 text-xs backdrop-blur-sm"
     >
       {locales.map((locale) => {
         const isActive = locale === currentLocale;
@@ -38,12 +42,12 @@ export function LocaleSwitcher() {
             href={basePath}
             locale={locale}
             className={cn(
-              "rounded-full px-2.5 py-1 font-semibold uppercase tracking-wide transition",
+              'rounded-full px-2.5 py-1 font-semibold tracking-wide uppercase transition',
               isActive
-                ? "bg-foreground text-background"
-                : "text-muted-foreground hover:text-foreground"
+                ? 'bg-foreground text-background shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/5',
             )}
-            aria-current={isActive ? "true" : undefined}
+            aria-current={isActive ? 'true' : undefined}
           >
             {locale}
           </Link>

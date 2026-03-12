@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type TimerCopy = {
+  performanceLabel: string;
   title: string;
   mode: string;
   emom: string;
@@ -61,18 +62,11 @@ export function TimerClient({ copy }: TimerClientProps) {
   const modeLabel =
     mode === 'emom' ? copy.emom : mode === 'amrap' ? copy.amrap : copy.forTime;
 
-  const statusChipClass = {
-    idle: 'border-border/60 bg-background text-muted-foreground',
-    running: 'border-accent/60 bg-accent/10 text-accent',
-    paused: 'border-border/60 bg-muted/40 text-muted-foreground',
-    finished: 'border-foreground bg-foreground text-background',
-  }[status];
-
   const modeChipClass = 'border-accent/60 bg-accent/10 text-accent';
 
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const ensureAudioContext = async () => {
+  const ensureAudioContext = useCallback(async () => {
     if (typeof window === 'undefined') return;
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
@@ -80,27 +74,30 @@ export function TimerClient({ copy }: TimerClientProps) {
     if (audioContextRef.current.state === 'suspended') {
       await audioContextRef.current.resume();
     }
-  };
+  }, []);
 
-  const playBeep = async (durationMs = 180, frequency = 880) => {
-    if (!soundEnabled) return;
-    await ensureAudioContext();
-    const ctx = audioContextRef.current;
-    if (!ctx) return;
+  const playBeep = useCallback(
+    async (durationMs = 180, frequency = 880) => {
+      if (!soundEnabled) return;
+      await ensureAudioContext();
+      const ctx = audioContextRef.current;
+      if (!ctx) return;
 
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-    gain.gain.value = 0.04;
+      oscillator.type = 'sine';
+      oscillator.frequency.value = frequency;
+      gain.gain.value = 0.04;
 
-    oscillator.connect(gain);
-    gain.connect(ctx.destination);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
 
-    oscillator.start();
-    oscillator.stop(ctx.currentTime + durationMs / 1000);
-  };
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + durationMs / 1000);
+    },
+    [ensureAudioContext, soundEnabled],
+  );
 
   const totalSeconds = useMemo(() => {
     if (mode === 'amrap') return amrapMinutes * 60;
@@ -141,7 +138,7 @@ export function TimerClient({ copy }: TimerClientProps) {
       setAnnouncement(copy.announceComplete);
       playBeep(600, 520);
     }
-  }, [elapsed, status, totalSeconds, copy.announceComplete]);
+  }, [elapsed, status, totalSeconds, copy.announceComplete, playBeep]);
 
   useEffect(() => {
     if (status !== 'running') return;
@@ -150,7 +147,7 @@ export function TimerClient({ copy }: TimerClientProps) {
       setAnnouncement(copy.announceTen);
       playBeep(200, 880);
     }
-  }, [remainingSeconds, status, copy.announceTen]);
+  }, [remainingSeconds, status, copy.announceTen, playBeep]);
 
   const startTimer = () => {
     if (soundEnabled) {
@@ -184,53 +181,59 @@ export function TimerClient({ copy }: TimerClientProps) {
           : copy.statusIdle;
 
   return (
-    <Card className="bg-muted/40">
-      <CardHeader>
-        <CardTitle>{copy.title}</CardTitle>
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-white/8 pb-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="section-label">{copy.performanceLabel}</p>
+            <CardTitle className="mt-2 text-3xl">{copy.title}</CardTitle>
+          </div>
+          <span className="text-muted-foreground rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-semibold tracking-[0.24em] uppercase">
+            {statusLabel}
+          </span>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-6 pt-6">
         <div className="sr-only" aria-live="polite">
           {announcement}
         </div>
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-semibold">{copy.mode}</legend>
+          <legend className="section-label">{copy.mode}</legend>
           <div className="flex flex-wrap gap-2">
             {[
               { value: 'emom', label: copy.emom },
               { value: 'amrap', label: copy.amrap },
               { value: 'fortime', label: copy.forTime },
             ].map((item) => (
-              <label  key={item.value} className="cursor-pointer">
-              <input
-                type="radio"
-                name="timer-mode"
-                value={item.value}
-                checked={mode === item.value}
-                onChange={() => {
-                  setMode(item.value as TimerMode);
-                  setElapsed(0);
-                  setStatus("idle");
-                }}
-                className="peer sr-only"
-              />
-              <span className="inline-flex items-center rounded-full border border-border/60 px-3 py-1 text-sm transition peer-checked:border-accent/60 peer-checked:bg-accent/10 peer-checked:text-accent peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-accent">
-                {item.label}
-              </span>
-            </label>
+              <label key={item.value} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="timer-mode"
+                  value={item.value}
+                  checked={mode === item.value}
+                  onChange={() => {
+                    setMode(item.value as TimerMode);
+                    setElapsed(0);
+                    setStatus('idle');
+                  }}
+                  className="peer sr-only"
+                />
+                <span className="peer-checked:border-accent/60 peer-checked:bg-accent/10 peer-checked:text-accent peer-focus-visible:ring-accent inline-flex items-center rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-sm transition peer-focus-visible:ring-2 peer-focus-visible:outline-none">
+                  {item.label}
+                </span>
+              </label>
             ))}
           </div>
         </fieldset>
 
         {mode === 'amrap' && (
           <div className="flex items-center gap-3">
-            <label className="text-sm font-semibold">
-              {copy.durationMinutes}
-            </label>
+            <label className="section-label">{copy.durationMinutes}</label>
             <input
               type="number"
               min={1}
-              className="border-border/60 focus-visible:ring-accent w-24 rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className="field-input w-24 rounded-xl px-3 py-2.5"
               value={amrapMinutes}
               onChange={(e) => {
                 setAmrapMinutes(Number(e.target.value));
@@ -243,13 +246,11 @@ export function TimerClient({ copy }: TimerClientProps) {
 
         {mode === 'emom' && (
           <div className="flex flex-wrap items-center gap-3">
-            <label className="text-sm font-semibold">
-              {copy.intervalSeconds}
-            </label>
+            <label className="section-label">{copy.intervalSeconds}</label>
             <input
               type="number"
               min={10}
-              className="border-border/60 focus-visible:ring-accent w-24 rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className="field-input w-24 rounded-xl px-3 py-2.5"
               value={emomInterval}
               onChange={(e) => {
                 setEmomInterval(Number(e.target.value));
@@ -257,11 +258,11 @@ export function TimerClient({ copy }: TimerClientProps) {
                 setStatus('idle');
               }}
             />
-            <label className="text-sm font-semibold">{copy.rounds}</label>
+            <label className="section-label">{copy.rounds}</label>
             <input
               type="number"
               min={1}
-              className="border-border/60 focus-visible:ring-accent w-24 rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className="field-input w-24 rounded-xl px-3 py-2.5"
               value={emomRounds}
               onChange={(e) => {
                 setEmomRounds(Number(e.target.value));
@@ -272,7 +273,7 @@ export function TimerClient({ copy }: TimerClientProps) {
           </div>
         )}
 
-        <div className="border-accent/60 bg-background rounded-2xl border px-6 py-6 text-center">
+        <div className="rounded-[1.75rem] border border-white/10 bg-black/15 px-6 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
             {mode === 'fortime' ? copy.timeElapsed : copy.timeRemaining}
           </p>
@@ -282,14 +283,16 @@ export function TimerClient({ copy }: TimerClientProps) {
             </span>
           </div>
 
-          <div className="mt-2 text-4xl font-semibold">{displayTime}</div>
+          <div className="font-display text-foreground mt-3 text-5xl tracking-[-0.04em]">
+            {displayTime}
+          </div>
           {roundInfo && (
             <p className="text-muted-foreground mt-2 text-sm">
               {copy.roundLabel} {roundInfo.round} ·{' '}
               {formatTime(roundInfo.roundRemaining)}
             </p>
           )}
-          <p className="text-accent mt-2 text-xs tracking-[0.2em] uppercase">
+          <p className="text-accent mt-3 text-xs tracking-[0.2em] uppercase">
             {statusLabel}
           </p>
         </div>

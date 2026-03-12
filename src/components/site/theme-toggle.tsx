@@ -1,32 +1,44 @@
-"use client";
+'use client';
 
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useSyncExternalStore } from 'react';
+import { Button } from '@/components/ui/button';
 
-export function ThemeToggle() {
+type ThemeToggleProps = {
+  label: string;
+};
+
+const emptySubscribe = () => () => {};
+
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
+export function ThemeToggle({ label }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsClient();
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" aria-label="Toggle theme">
+      <Button variant="ghost" size="icon" aria-label={label}>
         <Sun className="h-4 w-4" />
       </Button>
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark = theme === 'dark';
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Toggle theme"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={label}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
     >
       {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </Button>
