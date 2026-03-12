@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 
+import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWorkoutBuilder } from '@/hooks/use-workout-builder';
@@ -39,6 +40,10 @@ type BuilderCopy = {
   importSuccess: string;
   importError: string;
   importJson: string;
+  save: string;
+  saving: string;
+  saveSuccess: string;
+  saveError: string;
 };
 
 type BuilderClientProps = {
@@ -49,11 +54,44 @@ export function BuilderClient({ copy }: BuilderClientProps) {
   const [importMessage, setImportMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const router = useRouter();
+  const [saveMessage, setSaveMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
   const { state, dispatch, reset } = useWorkoutBuilder();
   const blockTitles = {
     warmup: copy.blockWarmup,
     strength: copy.blockStrength,
     metcon: copy.blockMetcon,
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+
+    try {
+      const response = await fetch('/api/workouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: state.title,
+          blocks: state.blocks,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('save failed');
+      }
+
+      const data = await response.json();
+      setSaveMessage(copy.saveSuccess);
+      reset();
+      router.push(`/workouts/${data.id}`);
+    } catch {
+      setSaveMessage(copy.saveError);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +172,9 @@ export function BuilderClient({ copy }: BuilderClientProps) {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? copy.saving : copy.save}
+          </Button>
           <Button size="sm" variant="outline" onClick={handleExport}>
             {copy.exportJson}
           </Button>
@@ -156,6 +197,9 @@ export function BuilderClient({ copy }: BuilderClientProps) {
           </Button>
           <p className="sr-only" aria-live="polite">
             {importMessage}
+          </p>
+          <p className="sr-only" aria-live="polite">
+            {saveMessage}
           </p>
         </div>
       </header>

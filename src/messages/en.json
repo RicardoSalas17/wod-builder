@@ -42,7 +42,11 @@
     "clearConfirm": "Clear the current draft? This cannot be undone.",
     "importJson": "Import JSON",
     "importSuccess": "Draft imported",
-    "importError": "Invalid file. Please choose a WOD Builder export."
+    "importError": "Invalid file. Please choose a WOD Builder export.",
+    "save": "Save WOD",
+    "saving": "Saving...",
+    "saveSuccess": "Saved",
+    "saveError": "Could not save. Try again."
   },
   "nav": {
     "brand": "WOD Builder",

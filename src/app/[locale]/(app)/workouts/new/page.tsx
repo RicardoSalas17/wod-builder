@@ -46,6 +46,10 @@ export default async function NewWorkoutPage({
     importJson: t('importJson'),
     importSuccess: t('importSuccess'),
     importError: t('importError'),
+    save: t('save'),
+    saving: t('saving'),
+    saveSuccess: t('saveSuccess'),
+    saveError: t('saveError'),
   };
 
   return <BuilderClient copy={copy} />;

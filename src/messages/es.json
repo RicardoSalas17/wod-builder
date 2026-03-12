@@ -42,7 +42,11 @@
     "clearConfirm": "¿Borrar el borrador actual? Esta acción no se puede deshacer.",
     "importJson": "Importar JSON",
     "importSuccess": "Borrador importado",
-    "importError": "Archivo inválido. Usa un export del WOD Builder."
+    "importError": "Archivo inválido. Usa un export del WOD Builder.",
+    "save": "Guardar WOD",
+    "saving": "Guardando...",
+    "saveSuccess": "Guardado",
+    "saveError": "No se pudo guardar. Intenta de nuevo."
   },
   "nav": {
     "brand": "WOD Builder",
