@@ -1,54 +1,68 @@
-"use client";
+'use client';
 
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef } from 'react';
 
 import {
   builderReducer,
   initialBuilderState,
   type BuilderState,
-} from "@/lib/workout-builder";
+} from '@/lib/workout-builder';
 
-const STORAGE_KEY = "wod-builder:draft:v1";
+const STORAGE_KEY = 'wod-builder:draft:v1';
 
 function coerceState(value: unknown): BuilderState | null {
-  if (!value || typeof value !== "object") return null;
+  if (!value || typeof value !== 'object') return null;
   const candidate = value as BuilderState;
-  if (typeof candidate.title !== "string") return null;
+  if (typeof candidate.title !== 'string') return null;
   if (!Array.isArray(candidate.blocks)) return null;
   return candidate;
 }
 
-export function useWorkoutBuilder() {
-  const [state, dispatch] = useReducer(builderReducer, initialBuilderState);
-  const [isHydrated, setIsHydrated] = useState(false);
+type UseWorkoutBuilderOptions = {
+  initialState?: BuilderState;
+  storageKey?: string;
+};
+
+export function useWorkoutBuilder(options: UseWorkoutBuilderOptions = {}) {
+  const initialState = options.initialState ?? initialBuilderState;
+  const storageKey = options.storageKey ?? STORAGE_KEY;
+
+  const [state, dispatch] = useReducer(builderReducer, initialState);
+  const shouldSkipPersist = useRef(true);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
         const nextState = coerceState(parsed);
         if (nextState) {
-          dispatch({ type: "hydrate", state: nextState });
+          dispatch({ type: 'hydrate', state: nextState });
         }
       } catch {
         // ignore invalid drafts
       }
+    } else {
+      dispatch({ type: 'hydrate', state: initialState });
     }
-    setIsHydrated(true);
-  }, []);
+    shouldSkipPersist.current = true;
+  }, [initialState, storageKey]);
 
   useEffect(() => {
-    if (!isHydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state, isHydrated]);
+    if (shouldSkipPersist.current) {
+      shouldSkipPersist.current = false;
+      return;
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  }, [state, storageKey]);
 
   return {
     state,
     dispatch,
     reset: () => {
-      dispatch({ type: "hydrate", state: initialBuilderState });
-      localStorage.removeItem(STORAGE_KEY);
+      dispatch({ type: 'hydrate', state: initialState });
+      localStorage.removeItem(storageKey);
     },
   };
 }

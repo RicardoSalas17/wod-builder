@@ -15,6 +15,13 @@ export default async function NewWorkoutPage({
   const t = await getTranslations({ locale, namespace: 'builder' });
 
   const copy = {
+    modeTag: t('modeTag'),
+    lead: t('lead'),
+    buildFlowLabel: t('buildFlowLabel'),
+    blocksCountLabel: t('blocksCountLabel'),
+    previewLabel: t('previewLabel'),
+    currentTitleLabel: t('currentTitleLabel'),
+    blockLabel: t('blockLabel'),
     subtitle: t('subtitle'),
     workoutTitleLabel: t('workoutTitleLabel'),
     workoutTitlePlaceholder: t('workoutTitlePlaceholder'),

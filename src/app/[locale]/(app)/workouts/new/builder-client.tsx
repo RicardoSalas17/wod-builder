@@ -5,10 +5,18 @@ import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWorkoutBuilder } from '@/hooks/use-workout-builder';
+import type { BuilderState } from '@/lib/workout-builder';
 
 const blockTypes = ['warmup', 'strength', 'metcon'] as const;
 
 type BuilderCopy = {
+  modeTag: string;
+  lead: string;
+  buildFlowLabel: string;
+  blocksCountLabel: string;
+  previewLabel: string;
+  currentTitleLabel: string;
+  blockLabel: string;
   subtitle: string;
   workoutTitleLabel: string;
   blockTitleLabel: string;
@@ -48,9 +56,21 @@ type BuilderCopy = {
 
 type BuilderClientProps = {
   copy: BuilderCopy;
+  initialState?: BuilderState;
+  saveEndpoint?: string;
+  saveMethod?: 'POST' | 'PATCH';
+  saveRedirectHref?: string;
+  storageKey?: string;
 };
 
-export function BuilderClient({ copy }: BuilderClientProps) {
+export function BuilderClient({
+  copy,
+  initialState,
+  saveEndpoint = '/api/workouts',
+  saveMethod = 'POST',
+  saveRedirectHref,
+  storageKey,
+}: BuilderClientProps) {
   const [importMessage, setImportMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -58,7 +78,10 @@ export function BuilderClient({ copy }: BuilderClientProps) {
   const [saveMessage, setSaveMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const { state, dispatch, reset } = useWorkoutBuilder();
+  const { state, dispatch, reset } = useWorkoutBuilder({
+    initialState,
+    storageKey,
+  });
   const blockTitles = {
     warmup: copy.blockWarmup,
     strength: copy.blockStrength,
@@ -70,8 +93,8 @@ export function BuilderClient({ copy }: BuilderClientProps) {
     setSaveMessage('');
 
     try {
-      const response = await fetch('/api/workouts', {
-        method: 'POST',
+      const response = await fetch(saveEndpoint, {
+        method: saveMethod,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: state.title,
@@ -86,7 +109,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
       const data = await response.json();
       setSaveMessage(copy.saveSuccess);
       reset();
-      router.push(`/workouts/${data.id}`);
+      router.push(saveRedirectHref ?? `/workouts/${data.id}`);
     } catch {
       setSaveMessage(copy.saveError);
     } finally {
@@ -151,19 +174,23 @@ export function BuilderClient({ copy }: BuilderClientProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-muted-foreground text-sm">{copy.subtitle}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {state.title || copy.workoutTitlePlaceholder}
-          </h1>
+    <div className="page-shell space-y-8">
+      <header className="page-header flex flex-wrap items-end justify-between gap-6">
+        <div className="relative z-10 w-full max-w-3xl space-y-4">
+          <span className="accent-pill">{copy.modeTag}</span>
+          <div className="space-y-2">
+            <p className="page-kicker">{copy.subtitle}</p>
+            <h1 className="page-title">
+              {state.title || copy.workoutTitlePlaceholder}
+            </h1>
+          </div>
+          <p className="page-lead">{copy.lead}</p>
           <label className="sr-only" htmlFor="wod-title">
             {copy.workoutTitleLabel}
           </label>
           <input
             id="wod-title"
-            className="border-border/60 focus-visible:ring-accent mt-2 w-full max-w-md rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+            className="field-input max-w-2xl"
             value={state.title}
             onChange={(event) =>
               dispatch({ type: 'set-title', title: event.target.value })
@@ -171,7 +198,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
             placeholder={copy.workoutTitlePlaceholder}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? copy.saving : copy.save}
           </Button>
@@ -205,11 +232,21 @@ export function BuilderClient({ copy }: BuilderClientProps) {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>{copy.workoutBuilderTitle}</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b border-white/8 pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="section-label">{copy.buildFlowLabel}</p>
+                <CardTitle className="mt-2 text-3xl">
+                  {copy.workoutBuilderTitle}
+                </CardTitle>
+              </div>
+              <span className="text-muted-foreground rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-semibold tracking-[0.24em] uppercase">
+                {state.blocks.length} {copy.blocksCountLabel}
+              </span>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="flex flex-wrap gap-2">
               {blockTypes.map((type) => (
                 <Button
@@ -230,15 +267,27 @@ export function BuilderClient({ copy }: BuilderClientProps) {
             </div>
 
             {state.blocks.length === 0 ? (
-              <div className="border-border/70 bg-background text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
+              <div className="text-muted-foreground rounded-[1.5rem] border border-dashed border-white/14 bg-white/[0.03] p-5 text-sm">
                 {copy.emptyBlocks}
               </div>
             ) : (
               <div className="space-y-4">
                 {state.blocks.map((block, index) => (
-                  <Card key={block.id} className="border-accent/60 border-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-3">
+                  <Card
+                    key={block.id}
+                    className="overflow-hidden border-white/10 bg-white/[0.035]"
+                  >
+                    <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-white/8 pb-5">
                       <CardTitle className="w-full">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                          <span className="section-label">
+                            {copy.blockLabel}{' '}
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <span className="border-accent/25 bg-accent/10 text-accent rounded-full border px-3 py-1 text-[0.68rem] font-semibold tracking-[0.24em] uppercase">
+                            {blockTitles[block.type]}
+                          </span>
+                        </div>
                         <label
                           className="sr-only"
                           htmlFor={`block-title-${block.id}`}
@@ -247,7 +296,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                         </label>
                         <input
                           id={`block-title-${block.id}`}
-                          className="focus-visible:ring-accent w-full bg-transparent text-base font-semibold focus-visible:ring-2 focus-visible:outline-none"
+                          className="font-display w-full bg-transparent text-2xl leading-none tracking-[-0.02em] focus-visible:outline-none"
                           value={block.title}
                           onChange={(event) =>
                             dispatch({
@@ -306,17 +355,17 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-3">
+                    <CardContent className="space-y-4 pt-6">
                       {block.movements.length === 0 ? (
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-muted-foreground text-sm leading-6">
                           {copy.emptyMovements}
                         </p>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {block.movements.map((movement, movementIndex) => (
                             <div
                               key={movement.id}
-                              className="border-border/60 bg-background grid gap-2 rounded-lg border p-3 md:grid-cols-[1.4fr_0.8fr_0.8fr_auto]"
+                              className="grid gap-2 rounded-[1.35rem] border border-white/8 bg-black/10 p-4 md:grid-cols-[1.4fr_0.8fr_0.8fr_auto]"
                             >
                               <label
                                 className="sr-only"
@@ -326,7 +375,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                               </label>
                               <input
                                 id={`${movement.id}-name`}
-                                className="border-border/60 focus-visible:ring-accent w-full rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                                className="field-input rounded-xl px-3 py-2.5"
                                 placeholder={copy.movementName}
                                 value={movement.name}
                                 onChange={(event) =>
@@ -346,7 +395,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                               </label>
                               <input
                                 id={`${movement.id}-load`}
-                                className="border-border/60 focus-visible:ring-accent w-full rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                                className="field-input rounded-xl px-3 py-2.5"
                                 placeholder={copy.load}
                                 value={movement.load}
                                 onChange={(event) =>
@@ -366,7 +415,7 @@ export function BuilderClient({ copy }: BuilderClientProps) {
                               </label>
                               <input
                                 id={`${movement.id}-reps`}
-                                className="border-border/60 focus-visible:ring-accent w-full rounded-md border bg-transparent px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                                className="field-input rounded-xl px-3 py-2.5"
                                 placeholder={copy.reps}
                                 value={movement.reps}
                                 onChange={(event) =>
@@ -451,39 +500,58 @@ export function BuilderClient({ copy }: BuilderClientProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-muted/40">
-          <CardHeader>
-            <CardTitle>{copy.previewTitle}</CardTitle>
+        <Card className="overflow-hidden lg:sticky lg:top-6 lg:self-start">
+          <CardHeader className="border-b border-white/8 pb-5">
+            <div>
+              <p className="section-label">{copy.previewLabel}</p>
+              <CardTitle className="mt-2 text-3xl">
+                {copy.previewTitle}
+              </CardTitle>
+            </div>
           </CardHeader>
           <div aria-live="polite" className="sr-only">
             {state.blocks.length === 0
               ? copy.previewEmpty
               : copy.previewUpdated}
           </div>
-          <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            {state.title || copy.workoutTitlePlaceholder}
-          </p>
-          <CardContent className="text-muted-foreground space-y-4 text-sm">
+          <CardContent className="text-muted-foreground space-y-4 pt-6 text-sm">
+            <div className="rounded-[1.5rem] border border-white/8 bg-black/10 p-5">
+              <p className="section-label">{copy.currentTitleLabel}</p>
+              <p className="font-display text-foreground mt-3 text-3xl leading-none tracking-[-0.03em]">
+                {state.title || copy.workoutTitlePlaceholder}
+              </p>
+            </div>
             {state.blocks.length === 0 ? (
               <p>{copy.previewEmpty}</p>
             ) : (
               <div className="space-y-4">
-                {state.blocks.map((block) => (
+                {state.blocks.map((block, index) => (
                   <div
                     key={block.id}
-                    className="border-accent/40 bg-background rounded-xl border p-4"
+                    className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-4"
                   >
-                    <p className="text-accent text-xs font-semibold tracking-wide uppercase">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="section-label">
+                        {copy.blockLabel} {String(index + 1).padStart(2, '0')}
+                      </p>
+                      <span className="border-accent/25 bg-accent/10 text-accent rounded-full border px-3 py-1 text-[0.68rem] font-semibold tracking-[0.24em] uppercase">
+                        {blockTitles[block.type]}
+                      </span>
+                    </div>
+                    <p className="font-display text-foreground mt-3 text-2xl leading-none tracking-[-0.02em]">
                       {block.title}
                     </p>
                     {block.movements.length === 0 ? (
-                      <p className="text-muted-foreground mt-2 text-sm">
+                      <p className="text-muted-foreground mt-3 text-sm">
                         {copy.previewEmptyMovements}
                       </p>
                     ) : (
-                      <ul className="mt-2 space-y-1 text-sm">
+                      <ul className="mt-3 space-y-2 text-sm">
                         {block.movements.map((movement) => (
-                          <li key={movement.id}>
+                          <li
+                            key={movement.id}
+                            className="rounded-xl border border-white/6 bg-black/10 px-3 py-2"
+                          >
                             {movement.name || copy.newMovement}
                             {movement.load ? ` · ${movement.load}` : ''}
                             {movement.reps ? ` · ${movement.reps}` : ''}

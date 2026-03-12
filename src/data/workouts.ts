@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { BlockType } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
+import { BlockType } from '@prisma/client';
 
 export type WorkoutCreateInput = {
   title: string;
@@ -38,12 +38,60 @@ export async function createWorkout(input: WorkoutCreateInput) {
     },
     include: {
       blocks: {
-        orderBy: { position: "asc" },
+        orderBy: { position: 'asc' },
         include: {
-          movements: { orderBy: { position: "asc" } },
+          movements: { orderBy: { position: 'asc' } },
         },
       },
     },
+  });
+}
+
+export async function updateWorkout(id: string, input: WorkoutCreateInput) {
+  return prisma.$transaction(async (tx) => {
+    const existingWorkout = await tx.workout.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!existingWorkout) {
+      return null;
+    }
+
+    await tx.block.deleteMany({
+      where: { workoutId: id },
+    });
+
+    return tx.workout.update({
+      where: { id },
+      data: {
+        title: input.title,
+        blocks: {
+          create: input.blocks.map((block, blockIndex) => ({
+            type: block.type,
+            title: block.title,
+            position: blockIndex,
+            movements: {
+              create: block.movements.map((movement, movementIndex) => ({
+                name: movement.name,
+                load: movement.load ?? null,
+                reps: movement.reps ?? null,
+                notes: movement.notes ?? null,
+                position: movementIndex,
+              })),
+            },
+          })),
+        },
+      },
+      include: {
+        blocks: {
+          orderBy: { position: 'asc' },
+          include: {
+            movements: { orderBy: { position: 'asc' } },
+          },
+        },
+      },
+    });
   });
 }
 
@@ -52,8 +100,8 @@ export async function getWorkoutById(id: string) {
     where: { id },
     include: {
       blocks: {
-        orderBy: { position: "asc" },
-        include: { movements: { orderBy: { position: "asc" } } },
+        orderBy: { position: 'asc' },
+        include: { movements: { orderBy: { position: 'asc' } } },
       },
     },
   });
@@ -61,7 +109,7 @@ export async function getWorkoutById(id: string) {
 
 export async function listWorkouts() {
   return prisma.workout.findMany({
-    orderBy: { updatedAt: "desc" },
+    orderBy: { updatedAt: 'desc' },
     select: { id: true, title: true, updatedAt: true },
   });
 }
