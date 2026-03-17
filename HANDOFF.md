@@ -5,9 +5,9 @@ Purpose: Project snapshot for a new agent. Summarizes stack, key files, and next
 Use this to onboard quickly without rereading the full history.
 -->
 
-## Snapshot (2026-03-12)
+## Snapshot (2026-03-17)
 
-- Branch: `feat/persistence`
+- Branch: `main`
 - Stack: Next.js App Router + TypeScript + Tailwind v4 + shadcn/ui
 - i18n: `next-intl` with locale routes under `src/app/[locale]` and `localePrefix: "as-needed"`
 
@@ -15,10 +15,12 @@ Use this to onboard quickly without rereading the full history.
 
 - Prisma 7 + SQLite
 - `.env` => `DATABASE_URL="file:./dev.db"`
+- Runtime deploy target: Turso via `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN`
 - `dev.db` es local de desarrollo y no debe versionarse; el esquema fuente vive en `prisma/schema.prisma` y `prisma/migrations/`
-- Client: `src/lib/prisma.ts` uses `PrismaBetterSqlite3({ url: DATABASE_URL })`
+- Client: `src/lib/prisma.ts` uses `PrismaLibSql` with Turso env vars or local `DATABASE_URL`
 - Schema: `prisma/schema.prisma`
 - Migrations: `prisma/migrations/`
+- Demo seed: `prisma/seed.ts`
 
 ## i18n + Middleware
 
@@ -47,12 +49,12 @@ Use this to onboard quickly without rereading the full history.
 
 - Saving a WOD via the builder works and redirects to detail.
 - List + detail are wired to Prisma DB and i18n.
+- Routines and logbook are in the product and now rely on migration-owned tables instead of runtime DDL.
+- Deploy path is being prepared around Vercel + Turso.
 
 ## Next steps (recommended)
 
-1. Edit WOD flow:
-   - Add `updateWorkout` in `src/data/workouts.ts`.
-   - Add `PATCH /api/workouts/[id]` route.
-   - Extend builder hook to accept `initialState` + `storageKey`.
-   - Reuse builder for edit (`/workouts/[id]/edit`).
-2. Then consider delete/duplicate actions.
+1. Run Prisma generate/migration commands on Node 20+ and apply the new SQL migration to the target DB.
+2. Seed demo data locally and then in Turso.
+3. Add a release pass for lint/build and smoke-test the main product flows.
+4. Deploy on Vercel with Turso env vars.

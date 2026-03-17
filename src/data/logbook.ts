@@ -66,57 +66,6 @@ type RoutineLookupRow = {
 
 type SqlExecutor = Pick<typeof prisma, '$queryRawUnsafe' | '$executeRawUnsafe'>;
 
-async function ensureLogbookTables() {
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS LogSession (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      performedAt TEXT NOT NULL,
-      notes TEXT,
-      durationMinutes INTEGER,
-      createdAt TEXT NOT NULL,
-      updatedAt TEXT NOT NULL,
-      routineId TEXT
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS LogExercise (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      notes TEXT,
-      loadTrackingEnabled INTEGER NOT NULL DEFAULT 0,
-      position INTEGER NOT NULL,
-      logSessionId TEXT NOT NULL,
-      routineExerciseId TEXT,
-      FOREIGN KEY (logSessionId) REFERENCES LogSession(id) ON DELETE CASCADE
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS LogSet (
-      id TEXT PRIMARY KEY,
-      setNumber INTEGER NOT NULL,
-      reps TEXT,
-      load TEXT,
-      completed INTEGER NOT NULL DEFAULT 1,
-      notes TEXT,
-      logExerciseId TEXT NOT NULL,
-      FOREIGN KEY (logExerciseId) REFERENCES LogExercise(id) ON DELETE CASCADE
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(
-    'CREATE INDEX IF NOT EXISTS LogExercise_session_position_idx ON LogExercise(logSessionId, position)',
-  );
-  await prisma.$executeRawUnsafe(
-    'CREATE INDEX IF NOT EXISTS LogSet_exercise_setNumber_idx ON LogSet(logExerciseId, setNumber)',
-  );
-  await prisma.$executeRawUnsafe(
-    'CREATE INDEX IF NOT EXISTS LogSession_performedAt_idx ON LogSession(performedAt)',
-  );
-}
-
 function mapLogSessionRecord(
   session: LogSessionRow,
   exercises: LogExerciseRow[],
@@ -162,8 +111,6 @@ function mapLogSessionRecord(
 }
 
 async function fetchLogSessionGraph(sessionIds?: string[]) {
-  await ensureLogbookTables();
-
   const sessions = (await prisma.$queryRawUnsafe(
     sessionIds?.length
       ? `SELECT * FROM LogSession WHERE id IN (${sessionIds.map(() => '?').join(', ')})`
@@ -259,8 +206,6 @@ async function replaceSessionChildren(
 }
 
 export async function createLogSession(input: LogSessionCreateInput) {
-  await ensureLogbookTables();
-
   const id = createId('log_session');
   const now = new Date().toISOString();
 
@@ -288,8 +233,6 @@ export async function createLogSession(input: LogSessionCreateInput) {
 }
 
 export async function createLogSessionFromRoutine(routineId: string) {
-  await ensureLogbookTables();
-
   const routine = (await prisma.$queryRawUnsafe(
     'SELECT * FROM Routine WHERE id = ?',
     routineId,
@@ -345,8 +288,6 @@ export async function updateLogSession(
   id: string,
   input: LogSessionCreateInput,
 ) {
-  await ensureLogbookTables();
-
   const existing = await getLogSessionById(id);
   if (!existing) {
     return null;

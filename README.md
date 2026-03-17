@@ -1,43 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WOD Builder
 
-## Getting Started
+WOD Builder is a coach-friendly CrossFit training planner built with Next.js, TypeScript, Prisma, and `next-intl`.
 
-First, run the development server:
+## Current MVP surface
+
+- Build workouts with warm-up, strength, and metcon blocks.
+- Edit saved workouts and run the integrated timer.
+- Create reusable strength routines.
+- Log free sessions or sessions derived from a routine.
+- Track sets, reps, and loads with the weight helper UI.
+- Browse the app in Spanish and English.
+
+## Local development
+
+Requirements:
+
+- Node 20+
+- npm
+
+Install dependencies and run the app:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-## Weight Picker MVP
+## Database setup
 
-- Domain helpers live in `src/domain/units.ts` and `src/domain/lifting.ts`.
-- Accessible UI lives in `src/components/weight-picker/`.
-- The current demo is embedded in the workout builder at `/workouts/new`.
-- Unit tests run with `npm run test:unit`.
+The app supports two database modes:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- local development via `DATABASE_URL="file:./dev.db"`
+- deployed runtime via Turso using `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env` and adjust values as needed.
 
-## Learn More
+Generate Prisma client:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:generate
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Seed demo content locally:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run db:seed:demo
+```
 
-## Deploy on Vercel
+## Turso + Vercel deploy path
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This repo is being prepared for a free MVP deploy using:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Vercel for the Next.js app
+- Turso for the remote SQLite-compatible database
+
+Schema workflow:
+
+1. Generate migration SQL locally against SQLite.
+2. Apply the SQL to Turso.
+3. Deploy the app with `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` set in Vercel.
+
+## Validation
+
+- Unit tests: `npm run test:unit`
+- Lint: `npm run lint`
+- Build: `npm run build`
+
+## Important files
+
+- `src/lib/prisma.ts` - runtime Prisma adapter selection
+- `src/data/workouts.ts` - workout persistence
+- `src/data/routines.ts` - routine persistence
+- `src/data/logbook.ts` - logbook persistence
+- `prisma/schema.prisma` - schema source of truth
+- `prisma/migrations/` - SQL migration history
+- `prisma/seed.ts` - demo seed data

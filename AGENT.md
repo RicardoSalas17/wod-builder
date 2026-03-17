@@ -33,9 +33,11 @@ Use this when handing off to a new coding agent or re‑aligning on how we work.
 **Persistence**
 
 - Prisma 7 + SQLite.
-- Prisma Client usa adapter `PrismaBetterSqlite3` en `src/lib/prisma.ts`.
+- Prisma Client usa `PrismaLibSql` en `src/lib/prisma.ts`.
 - `.env` contiene `DATABASE_URL="file:./dev.db"`.
+- Deploy remoto usa `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`.
 - `dev.db` es local para desarrollo; no se debe commitear y se reconstruye desde `prisma/migrations/`.
+- `prisma/schema.prisma` es la fuente de verdad y `routines/logbook` ya no deben crear tablas en runtime.
 - `src/middleware.ts` debe excluir `/api` en el matcher.
 
 **Data Flow**

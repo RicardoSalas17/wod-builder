@@ -53,51 +53,6 @@ type RoutineSessionCountRow = {
 
 type SqlExecutor = Pick<typeof prisma, '$queryRawUnsafe' | '$executeRawUnsafe'>;
 
-async function ensureRoutineTables() {
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS Routine (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT,
-      focus TEXT,
-      createdAt TEXT NOT NULL,
-      updatedAt TEXT NOT NULL
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS RoutineBlock (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      position INTEGER NOT NULL,
-      routineId TEXT NOT NULL,
-      FOREIGN KEY (routineId) REFERENCES Routine(id) ON DELETE CASCADE
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS RoutineExercise (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      targetSets INTEGER,
-      targetReps TEXT,
-      restSeconds INTEGER,
-      notes TEXT,
-      loadTrackingEnabled INTEGER NOT NULL DEFAULT 0,
-      position INTEGER NOT NULL,
-      routineBlockId TEXT NOT NULL,
-      FOREIGN KEY (routineBlockId) REFERENCES RoutineBlock(id) ON DELETE CASCADE
-    )
-  `);
-
-  await prisma.$executeRawUnsafe(
-    'CREATE INDEX IF NOT EXISTS RoutineBlock_routineId_position_idx ON RoutineBlock(routineId, position)',
-  );
-  await prisma.$executeRawUnsafe(
-    'CREATE INDEX IF NOT EXISTS RoutineExercise_blockId_position_idx ON RoutineExercise(routineBlockId, position)',
-  );
-}
-
 function mapRoutineRecord(
   routine: RoutineRow,
   blocks: RoutineBlockRow[],
@@ -135,8 +90,6 @@ function mapRoutineRecord(
 }
 
 async function fetchRoutineGraph(routineIds?: string[]) {
-  await ensureRoutineTables();
-
   const routines = (await prisma.$queryRawUnsafe(
     routineIds?.length
       ? `SELECT * FROM Routine WHERE id IN (${routineIds.map(() => '?').join(', ')})`
@@ -220,8 +173,6 @@ async function replaceRoutineChildren(
 }
 
 export async function createRoutine(input: RoutineCreateInput) {
-  await ensureRoutineTables();
-
   const id = createId('routine');
   const now = new Date().toISOString();
 
@@ -245,8 +196,6 @@ export async function createRoutine(input: RoutineCreateInput) {
 }
 
 export async function updateRoutine(id: string, input: RoutineCreateInput) {
-  await ensureRoutineTables();
-
   const existing = await getRoutineById(id);
   if (!existing) {
     return null;
@@ -307,16 +256,14 @@ export async function getRoutineById(id: string) {
 
 export async function listRoutines() {
   const { routines, blocks, exercises } = await fetchRoutineGraph();
-  const sessionCounts = (await prisma
-    .$queryRawUnsafe(
-      `
+  const sessionCounts = (await prisma.$queryRawUnsafe(
+    `
     SELECT routineId, COUNT(*) as count
     FROM LogSession
     WHERE routineId IS NOT NULL
     GROUP BY routineId
   `,
-    )
-    .catch(() => [])) as RoutineSessionCountRow[];
+  )) as RoutineSessionCountRow[];
 
   return routines
     .map((routine) => {
