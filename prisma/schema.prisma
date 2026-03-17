@@ -21,6 +21,94 @@ model Workout {
   blocks    Block[]
 }
 
+model Routine {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  focus       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  blocks      RoutineBlock[]
+  sessions    LogSession[]
+}
+
+model RoutineBlock {
+  id        String            @id @default(cuid())
+  title     String
+  position  Int
+  routineId String
+
+  routine   Routine           @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  exercises RoutineExercise[]
+
+  @@index([routineId, position])
+}
+
+model RoutineExercise {
+  id                  String        @id @default(cuid())
+  name                String
+  targetSets          Int?
+  targetReps          String?
+  restSeconds         Int?
+  notes               String?
+  loadTrackingEnabled Boolean       @default(false)
+  position            Int
+  routineBlockId      String
+
+  block               RoutineBlock  @relation(fields: [routineBlockId], references: [id], onDelete: Cascade)
+  loggedExercises     LogExercise[]
+
+  @@index([routineBlockId, position])
+}
+
+model LogSession {
+  id              String        @id @default(cuid())
+  title           String
+  performedAt     DateTime
+  notes           String?
+  durationMinutes Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  routineId       String?
+
+  routine         Routine?      @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  exercises       LogExercise[]
+
+  @@index([performedAt])
+  @@index([routineId, performedAt])
+}
+
+model LogExercise {
+  id                  String           @id @default(cuid())
+  name                String
+  notes               String?
+  loadTrackingEnabled Boolean          @default(false)
+  position            Int
+  logSessionId        String
+  routineExerciseId   String?
+
+  session             LogSession       @relation(fields: [logSessionId], references: [id], onDelete: Cascade)
+  routineExercise     RoutineExercise? @relation(fields: [routineExerciseId], references: [id], onDelete: SetNull)
+  sets                LogSet[]
+
+  @@index([logSessionId, position])
+}
+
+model LogSet {
+  id            String      @id @default(cuid())
+  setNumber     Int
+  reps          String?
+  load          String?
+  completed     Boolean     @default(true)
+  notes         String?
+  logExerciseId String
+
+  exercise      LogExercise @relation(fields: [logExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([logExerciseId, setNumber])
+}
+
 model Block {
   id        String    @id @default(cuid())
   type      BlockType

@@ -9,6 +9,8 @@ export async function AppHeader() {
   const t = await getTranslations('nav');
   const appItems = [
     { href: '/workouts', label: t('allWorkouts') },
+    { href: '/routines', label: t('allRoutines') },
+    { href: '/logbook', label: t('allLogbook') },
     { href: '/workouts/new', label: t('newWorkout') },
   ];
 

@@ -277,4 +277,43 @@
   .weight-control {
     @apply text-foreground hover:border-accent/35 focus-visible:ring-accent/60 min-h-11 rounded-full border border-white/10 bg-white/5 transition hover:bg-white/8 focus-visible:ring-2 focus-visible:outline-none motion-reduce:transition-none;
   }
+
+  .metric-chip {
+    @apply rounded-[1.35rem] border border-white/10 bg-black/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)];
+  }
+
+  .metric-value {
+    @apply font-display text-foreground mt-2 text-2xl leading-none tracking-[-0.03em];
+  }
+
+  .module-card {
+    @apply relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] shadow-[0_20px_80px_rgba(0,0,0,0.22)] transition duration-300;
+  }
+
+  .module-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(76, 173, 56, 0.12),
+        transparent 30%
+      ),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 45%);
+    pointer-events: none;
+  }
+
+  .module-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .data-pill {
+    @apply text-muted-foreground inline-flex items-center rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[0.72rem] font-medium tracking-[0.14em] uppercase;
+  }
+
+  .timeline-dot {
+    @apply bg-accent h-2.5 w-2.5 rounded-full shadow-[0_0_0_6px_rgba(76,173,56,0.12)];
+  }
 }
