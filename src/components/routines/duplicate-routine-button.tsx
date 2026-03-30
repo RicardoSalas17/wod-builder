@@ -62,6 +62,9 @@ export function DuplicateRoutineButton({
       <p className="sr-only" aria-live="polite">
         {message}
       </p>
+      {message ? (
+        <p className="text-sm leading-6 text-rose-300">{message}</p>
+      ) : null}
     </>
   );
 }

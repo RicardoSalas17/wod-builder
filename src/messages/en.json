@@ -4,8 +4,8 @@
     "subtitle": "Build warm-up, strength, and metcon blocks in minutes. Preview the flow live and run a timer built for coaches.",
     "strip": "Coach-ready. Athlete-tested. Built in Mexico.",
     "ctaPrimary": "Craft a WOD",
-    "ctaSecondary": "Run the Timer",
-    "ctaTertiary": "Explore Workouts",
+    "ctaSecondary": "Browse routines",
+    "ctaTertiary": "See the logbook",
     "tagBuilder": "Builder",
     "tagTimer": "Timer",
     "tagUnits": "Units",
@@ -108,7 +108,7 @@
       "trackingLabel": "Future tracking",
       "lastUsedLabel": "Last used",
       "personalRecordLabel": "Personal record",
-      "trackingHint": "Reserved for history and PR tracking once persistence is connected.",
+      "trackingHint": "Reserved for future history and PR snapshots.",
       "configuredLabel": "Configured load"
     }
   },
@@ -125,7 +125,9 @@
     "newWorkout": "New workout",
     "createWod": "Create WOD",
     "language": "Language",
-    "toggleTheme": "Toggle theme"
+    "toggleTheme": "Toggle theme",
+    "primaryNav": "Primary navigation",
+    "skipToContent": "Skip to content"
   },
   "routines": {
     "title": "Routines",
@@ -326,7 +328,7 @@
       "trackingLabel": "Future tracking",
       "lastUsedLabel": "Last used",
       "personalRecordLabel": "Personal record",
-      "trackingHint": "Reserved for history and PR tracking once persistence is connected.",
+      "trackingHint": "Reserved for future history and PR snapshots.",
       "configuredLabel": "Configured load"
     }
   },
@@ -378,14 +380,13 @@
     "title": "Workout detail",
     "detailTag": "Session detail",
     "lead": "Review the session structure, adjust the flow, and keep the timer close for the coaching floor.",
-    "duplicate": "Duplicate",
     "edit": "Edit WOD",
     "blocksCountLabel": "Blocks",
     "structureLabel": "Structure",
     "coachViewTag": "Coach view",
     "blockLabel": "Block",
     "blocksTitle": "Workout blocks",
-    "blocksEmpty": "Blocks will render here once persistence is wired.",
+    "blocksEmpty": "No blocks in this workout yet.",
     "placeholder": "Placeholder",
     "placeholderBody": "We will show warm-up, strength, and metcon blocks here.",
     "back": "Back to workouts",

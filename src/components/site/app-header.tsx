@@ -24,7 +24,7 @@ export async function AppHeader() {
           {t('brand')}
         </Link>
         <nav
-          aria-label="Workouts"
+          aria-label={t('primaryNav')}
           className="flex flex-wrap items-center gap-2 text-sm"
         >
           {appItems.map((item) => (

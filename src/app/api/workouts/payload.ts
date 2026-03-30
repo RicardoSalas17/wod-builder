@@ -40,14 +40,10 @@ export function parseWorkoutPayload(body: unknown): WorkoutCreateInput | null {
       continue;
     }
 
-    const movements = Array.isArray(nextBlock.movements)
-      ? nextBlock.movements
-      : [];
-
-    blocks.push({
-      type,
-      title: typeof nextBlock.title === 'string' ? nextBlock.title.trim() : '',
-      movements: movements.map((movement) => {
+    const movements = (
+      Array.isArray(nextBlock.movements) ? nextBlock.movements : []
+    )
+      .map((movement) => {
         const nextMovement =
           movement && typeof movement === 'object'
             ? (movement as {
@@ -76,8 +72,22 @@ export function parseWorkoutPayload(body: unknown): WorkoutCreateInput | null {
               ? nextMovement.notes.trim()
               : null,
         };
-      }),
+      })
+      .filter((movement) => movement.name.length > 0);
+
+    if (movements.length === 0) {
+      continue;
+    }
+
+    blocks.push({
+      type,
+      title: typeof nextBlock.title === 'string' ? nextBlock.title.trim() : '',
+      movements,
     });
+  }
+
+  if (blocks.length === 0) {
+    return null;
   }
 
   return {

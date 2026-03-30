@@ -4,8 +4,8 @@
     "subtitle": "Crea bloques de warm-up, strength y metcon en minutos. Previsualiza el flujo y usa un timer hecho para coaches.",
     "strip": "Listo para coach. Probado en box. Hecho en México.",
     "ctaPrimary": "Crear WOD",
-    "ctaSecondary": "Iniciar Timer",
-    "ctaTertiary": "Explorar WODs",
+    "ctaSecondary": "Explorar rutinas",
+    "ctaTertiary": "Ver bitácora",
     "tagBuilder": "Builder",
     "tagTimer": "Timer",
     "tagUnits": "Unidades",
@@ -108,7 +108,7 @@
       "trackingLabel": "Tracking futuro",
       "lastUsedLabel": "Ultimo usado",
       "personalRecordLabel": "Record personal",
-      "trackingHint": "Reservado para historial y PRs cuando conectemos persistencia.",
+      "trackingHint": "Reservado para futuros snapshots de historial y PRs.",
       "configuredLabel": "Carga configurada"
     }
   },
@@ -125,7 +125,9 @@
     "newWorkout": "Nuevo WOD",
     "createWod": "Crear WOD",
     "language": "Idioma",
-    "toggleTheme": "Cambiar tema"
+    "toggleTheme": "Cambiar tema",
+    "primaryNav": "Navegacion principal",
+    "skipToContent": "Saltar al contenido"
   },
   "routines": {
     "title": "Rutinas",
@@ -326,7 +328,7 @@
       "trackingLabel": "Tracking futuro",
       "lastUsedLabel": "Ultimo usado",
       "personalRecordLabel": "Record personal",
-      "trackingHint": "Reservado para historial y PRs cuando conectemos persistencia.",
+      "trackingHint": "Reservado para futuros snapshots de historial y PRs.",
       "configuredLabel": "Carga configurada"
     }
   },
@@ -378,14 +380,13 @@
     "title": "Detalle del entrenamiento",
     "detailTag": "Detalle de sesión",
     "lead": "Revisa la estructura, ajusta el flujo y mantén el timer cerca para el piso de coaching.",
-    "duplicate": "Duplicar",
     "edit": "Editar WOD",
     "blocksCountLabel": "Bloques",
     "structureLabel": "Estructura",
     "coachViewTag": "Vista coach",
     "blockLabel": "Bloque",
     "blocksTitle": "Bloques del WOD",
-    "blocksEmpty": "Los bloques aparecerán cuando exista persistencia.",
+    "blocksEmpty": "Aun no hay bloques en este WOD.",
     "placeholder": "Placeholder",
     "placeholderBody": "Aquí mostraremos warm-up, fuerza y metcon.",
     "back": "Volver a entrenamientos",

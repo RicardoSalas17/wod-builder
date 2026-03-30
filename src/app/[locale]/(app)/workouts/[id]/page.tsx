@@ -87,9 +87,6 @@ export default async function WorkoutDetailPage({
               {workout.blocks.length}
             </p>
           </div>
-          <Button size="sm" variant="outline">
-            {tDetail('duplicate')}
-          </Button>
           <Button asChild size="sm">
             <Link href={`/workouts/${workout.id}/edit`}>{tDetail('edit')}</Link>
           </Button>

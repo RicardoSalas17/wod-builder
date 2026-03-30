@@ -140,6 +140,15 @@ export function LogSessionBuilderClient({
           <p className="sr-only" aria-live="polite">
             {saveMessage}
           </p>
+          {saveMessage ? (
+            <p
+              className={`w-full text-sm leading-6 ${
+                saveMessage === copy.saveError ? 'text-rose-300' : 'text-accent'
+              }`}
+            >
+              {saveMessage}
+            </p>
+          ) : null}
         </div>
       </header>
 

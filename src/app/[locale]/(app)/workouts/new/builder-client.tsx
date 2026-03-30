@@ -235,6 +235,20 @@ export function BuilderClient({
           <p className="sr-only" aria-live="polite">
             {saveMessage}
           </p>
+          {importMessage ? (
+            <p className="text-muted-foreground w-full text-sm leading-6">
+              {importMessage}
+            </p>
+          ) : null}
+          {saveMessage ? (
+            <p
+              className={`w-full text-sm leading-6 ${
+                saveMessage === copy.saveError ? 'text-rose-300' : 'text-accent'
+              }`}
+            >
+              {saveMessage}
+            </p>
+          ) : null}
         </div>
       </header>
 

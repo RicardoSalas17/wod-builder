@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { Link, usePathname } from '@/i18n/navigation';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import { defaultLocale, locales } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,7 @@ type LocaleSwitcherProps = {
 export function LocaleSwitcher({ label }: LocaleSwitcherProps) {
   const pathname = usePathname();
   const params = useParams();
+  const router = useRouter();
   const currentLocale =
     typeof params.locale === 'string' ? params.locale : defaultLocale;
 
@@ -37,10 +38,13 @@ export function LocaleSwitcher({ label }: LocaleSwitcherProps) {
       {locales.map((locale) => {
         const isActive = locale === currentLocale;
         return (
-          <Link
+          <button
+            type="button"
             key={locale}
-            href={basePath}
-            locale={locale}
+            onClick={() => {
+              const search = window.location.search;
+              router.replace(`${basePath}${search}`, { locale });
+            }}
             className={cn(
               'rounded-full px-2.5 py-1 font-semibold tracking-wide uppercase transition',
               isActive
@@ -50,7 +54,7 @@ export function LocaleSwitcher({ label }: LocaleSwitcherProps) {
             aria-current={isActive ? 'true' : undefined}
           >
             {locale}
-          </Link>
+          </button>
         );
       })}
     </nav>

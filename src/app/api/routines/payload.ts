@@ -33,50 +33,58 @@ export function parseRoutinePayload(body: unknown): RoutineCreateInput | null {
     return null;
   }
 
+  const blocks = candidate.blocks
+    .filter((block) => block && typeof block === 'object')
+    .map((block) => {
+      const nextBlock = block as {
+        title?: unknown;
+        exercises?: unknown;
+      };
+
+      const exercises = (
+        Array.isArray(nextBlock.exercises) ? nextBlock.exercises : []
+      )
+        .filter((exercise) => exercise && typeof exercise === 'object')
+        .map((exercise) => {
+          const nextExercise = exercise as {
+            name?: unknown;
+            targetSets?: unknown;
+            targetReps?: unknown;
+            restSeconds?: unknown;
+            notes?: unknown;
+            loadTrackingEnabled?: unknown;
+          };
+
+          return {
+            name:
+              typeof nextExercise.name === 'string'
+                ? nextExercise.name.trim()
+                : '',
+            targetSets: toNullableInt(nextExercise.targetSets),
+            targetReps: toNullableString(nextExercise.targetReps),
+            restSeconds: toNullableInt(nextExercise.restSeconds),
+            notes: toNullableString(nextExercise.notes),
+            loadTrackingEnabled: Boolean(nextExercise.loadTrackingEnabled),
+          };
+        })
+        .filter((exercise) => exercise.name.length > 0);
+
+      return {
+        title:
+          typeof nextBlock.title === 'string' ? nextBlock.title.trim() : '',
+        exercises,
+      };
+    })
+    .filter((block) => block.exercises.length > 0);
+
+  if (blocks.length === 0) {
+    return null;
+  }
+
   return {
     title: typeof candidate.title === 'string' ? candidate.title.trim() : '',
     description: toNullableString(candidate.description),
     focus: toNullableString(candidate.focus),
-    blocks: candidate.blocks
-      .filter((block) => block && typeof block === 'object')
-      .map((block) => {
-        const nextBlock = block as {
-          title?: unknown;
-          exercises?: unknown;
-        };
-
-        const exercises = Array.isArray(nextBlock.exercises)
-          ? nextBlock.exercises
-          : [];
-
-        return {
-          title:
-            typeof nextBlock.title === 'string' ? nextBlock.title.trim() : '',
-          exercises: exercises
-            .filter((exercise) => exercise && typeof exercise === 'object')
-            .map((exercise) => {
-              const nextExercise = exercise as {
-                name?: unknown;
-                targetSets?: unknown;
-                targetReps?: unknown;
-                restSeconds?: unknown;
-                notes?: unknown;
-                loadTrackingEnabled?: unknown;
-              };
-
-              return {
-                name:
-                  typeof nextExercise.name === 'string'
-                    ? nextExercise.name.trim()
-                    : '',
-                targetSets: toNullableInt(nextExercise.targetSets),
-                targetReps: toNullableString(nextExercise.targetReps),
-                restSeconds: toNullableInt(nextExercise.restSeconds),
-                notes: toNullableString(nextExercise.notes),
-                loadTrackingEnabled: Boolean(nextExercise.loadTrackingEnabled),
-              };
-            }),
-        };
-      }),
+    blocks,
   };
 }

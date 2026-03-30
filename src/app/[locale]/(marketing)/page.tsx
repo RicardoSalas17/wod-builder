@@ -64,10 +64,10 @@ export default async function MarketingPage({
                 <Link href="/workouts/new">{t('ctaPrimary')}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="px-6">
-                <Link href="/workouts">{t('ctaSecondary')}</Link>
+                <Link href="/routines">{t('ctaSecondary')}</Link>
               </Button>
               <Button asChild size="lg" variant="secondary" className="px-6">
-                <Link href="/workouts">{t('ctaTertiary')}</Link>
+                <Link href="/logbook">{t('ctaTertiary')}</Link>
               </Button>
             </div>
 
