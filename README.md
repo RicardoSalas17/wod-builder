@@ -2,7 +2,7 @@
 
 WOD Builder is a bilingual coaching app for planning CrossFit-style sessions, organizing reusable routines, and logging training with set-by-set detail. It is built as a portfolio-ready MVP with a public deploy, production database, and polished end-to-end flows.
 
-Live demo: `https://wod-builder-pdhu9c7sr-ricardosalas1716-2912s-projects.vercel.app/`
+Live demo: `https://wod-builder.vercel.app?_vercel_share=ma7iDn18GE24uJNjA3TYZL95wqp9xezs`
 
 ## Why this project matters
 
