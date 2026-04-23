@@ -1,3 +1,4 @@
+import { BODY_PARTS } from '@/domain/body-parts';
 import type { RoutineCreateInput } from '@/data/routines';
 
 function toNullableString(value: unknown) {
@@ -48,6 +49,7 @@ export function parseRoutinePayload(body: unknown): RoutineCreateInput | null {
         .map((exercise) => {
           const nextExercise = exercise as {
             name?: unknown;
+            bodyPart?: unknown;
             targetSets?: unknown;
             targetReps?: unknown;
             restSeconds?: unknown;
@@ -55,11 +57,20 @@ export function parseRoutinePayload(body: unknown): RoutineCreateInput | null {
             loadTrackingEnabled?: unknown;
           };
 
+          const rawBodyPart =
+            typeof nextExercise.bodyPart === 'string'
+              ? nextExercise.bodyPart.trim().toUpperCase()
+              : null;
+
           return {
             name:
               typeof nextExercise.name === 'string'
                 ? nextExercise.name.trim()
                 : '',
+            bodyPart:
+              rawBodyPart && (BODY_PARTS as readonly string[]).includes(rawBodyPart)
+                ? rawBodyPart
+                : null,
             targetSets: toNullableInt(nextExercise.targetSets),
             targetReps: toNullableString(nextExercise.targetReps),
             restSeconds: toNullableInt(nextExercise.restSeconds),

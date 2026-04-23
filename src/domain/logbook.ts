@@ -4,14 +4,17 @@ export type LogSet = {
   reps?: string;
   load?: string;
   completed: boolean;
+  rpe?: number;
   notes?: string;
 };
 
 export type LogExercise = {
   id: string;
   name: string;
+  bodyPart?: string;
   notes?: string;
   loadTrackingEnabled: boolean;
+  increaseWeight: boolean;
   helperLoad?: string;
   sets: LogSet[];
 };

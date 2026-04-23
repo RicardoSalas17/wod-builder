@@ -1,3 +1,4 @@
+import { BODY_PARTS } from '@/domain/body-parts';
 import type { LogSessionCreateInput } from '@/data/logbook';
 
 function toNullableString(value: unknown) {
@@ -51,11 +52,18 @@ export function parseLogbookPayload(
     .map((exercise) => {
       const nextExercise = exercise as {
         name?: unknown;
+        bodyPart?: unknown;
         notes?: unknown;
         loadTrackingEnabled?: unknown;
+        increaseWeight?: unknown;
         routineExerciseId?: unknown;
         sets?: unknown;
       };
+
+      const rawBodyPart =
+        typeof nextExercise.bodyPart === 'string'
+          ? nextExercise.bodyPart.trim().toUpperCase()
+          : null;
 
       const sets = (Array.isArray(nextExercise.sets) ? nextExercise.sets : [])
         .filter((set) => set && typeof set === 'object')
@@ -65,8 +73,11 @@ export function parseLogbookPayload(
             reps?: unknown;
             load?: unknown;
             completed?: unknown;
+            rpe?: unknown;
             notes?: unknown;
           };
+
+          const rawRpe = toNullableInt(nextSet.rpe);
 
           return {
             setNumber: toNullableInt(nextSet.setNumber) ?? index + 1,
@@ -74,6 +85,7 @@ export function parseLogbookPayload(
             load: toNullableString(nextSet.load),
             completed:
               typeof nextSet.completed === 'boolean' ? nextSet.completed : true,
+            rpe: rawRpe !== null && rawRpe >= 1 && rawRpe <= 10 ? rawRpe : null,
             notes: toNullableString(nextSet.notes),
           };
         });
@@ -81,8 +93,13 @@ export function parseLogbookPayload(
       return {
         name:
           typeof nextExercise.name === 'string' ? nextExercise.name.trim() : '',
+        bodyPart:
+          rawBodyPart && (BODY_PARTS as readonly string[]).includes(rawBodyPart)
+            ? rawBodyPart
+            : null,
         notes: toNullableString(nextExercise.notes),
         loadTrackingEnabled: Boolean(nextExercise.loadTrackingEnabled),
+        increaseWeight: Boolean(nextExercise.increaseWeight),
         routineExerciseId: toNullableString(nextExercise.routineExerciseId),
         sets,
       };

@@ -49,6 +49,7 @@ model RoutineBlock {
 model RoutineExercise {
   id                  String        @id @default(cuid())
   name                String
+  bodyPart            String?
   targetSets          Int?
   targetReps          String?
   restSeconds         Int?
@@ -83,8 +84,10 @@ model LogSession {
 model LogExercise {
   id                  String           @id @default(cuid())
   name                String
+  bodyPart            String?
   notes               String?
   loadTrackingEnabled Boolean          @default(false)
+  increaseWeight      Boolean          @default(false)
   position            Int
   logSessionId        String
   routineExerciseId   String?
@@ -102,6 +105,7 @@ model LogSet {
   reps          String?
   load          String?
   completed     Boolean     @default(true)
+  rpe           Int?
   notes         String?
   logExerciseId String
 

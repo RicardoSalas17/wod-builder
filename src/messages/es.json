@@ -257,6 +257,17 @@
     "applyFilters": "Aplicar filtros",
     "clearFilters": "Limpiar filtros"
   },
+  "bodyParts": {
+    "label": "Parte del cuerpo",
+    "placeholder": "Seleccionar",
+    "CHEST": "Pecho",
+    "BACK": "Espalda",
+    "LEGS": "Piernas",
+    "SHOULDERS": "Hombros",
+    "ARMS": "Bíceps / Tríceps",
+    "CORE": "Core",
+    "CARDIO": "Cardio / Full body"
+  },
   "logbookBuilder": {
     "title": "Registro de sesion",
     "subtitle": "Nueva sesion",
@@ -273,11 +284,18 @@
     "notesPlaceholder": "Como te sentiste, energia, tecnica o cualquier observacion",
     "exerciseName": "Ejercicio",
     "exerciseNotesLabel": "Notas del ejercicio",
+    "increaseWeightLabel": "↑ Subir peso la próxima sesión",
     "setLabel": "Serie",
     "repsLabel": "Reps",
     "loadLabel": "Carga",
     "completedLabel": "Completada",
+    "rpeLabel": "RPE",
+    "rpePlaceholder": "1-10",
     "setNotesLabel": "Nota de la serie",
+    "historyTitle": "Historial",
+    "historyEmpty": "Sin registros previos",
+    "historyCollapse": "Ocultar historial",
+    "historyExpand": "Ver historial",
     "addExercise": "Agregar ejercicio",
     "addSet": "Agregar serie",
     "remove": "Eliminar",
@@ -345,6 +363,8 @@
     "setLabel": "Serie",
     "doneTag": "hecha",
     "skippedTag": "omitida",
+    "rpeShort": "RPE",
+    "increaseWeightTag": "↑ Subir peso",
     "back": "Volver a bitacora"
   },
   "timer": {

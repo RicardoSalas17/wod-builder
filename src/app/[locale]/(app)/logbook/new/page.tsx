@@ -20,20 +20,23 @@ function toInitialState(
     routineId: routine.id,
     exercises: routine.blocks.flatMap(
       (block: (typeof routine.blocks)[number]) =>
-        block.exercises.map((exercise: (typeof block.exercises)[number]) => ({
+        block.exercises.map((exercise) => ({
           id: exercise.id,
           name: exercise.name,
+          bodyPart: exercise.bodyPart ?? undefined,
           notes: exercise.notes ?? '',
           loadTrackingEnabled: exercise.loadTrackingEnabled,
+          increaseWeight: false,
           helperLoad: '',
           sets: Array.from(
-            { length: exercise.targetSets ?? 1 },
+            { length: (exercise.targetSets ? Number(exercise.targetSets) : null) ?? 1 },
             (_, index) => ({
               id: `${exercise.id}-set-${index + 1}`,
               setNumber: index + 1,
               reps: exercise.targetReps ?? '',
               load: '',
               completed: true,
+              rpe: undefined,
               notes: '',
             }),
           ),
@@ -53,8 +56,9 @@ export default async function NewLogSessionPage({
   const { routineId } = await searchParams;
   setRequestLocale(locale);
 
-  const [t, routine] = await Promise.all([
+  const [t, tb, routine] = await Promise.all([
     getTranslations({ locale, namespace: 'logbookBuilder' }),
+    getTranslations({ locale, namespace: 'bodyParts' }),
     routineId ? getRoutineById(routineId) : Promise.resolve(null),
   ]);
 
@@ -75,11 +79,18 @@ export default async function NewLogSessionPage({
         notesPlaceholder: t('notesPlaceholder'),
         exerciseName: t('exerciseName'),
         exerciseNotesLabel: t('exerciseNotesLabel'),
+        increaseWeightLabel: t('increaseWeightLabel'),
         setLabel: t('setLabel'),
         repsLabel: t('repsLabel'),
         loadLabel: t('loadLabel'),
         completedLabel: t('completedLabel'),
+        rpeLabel: t('rpeLabel'),
+        rpePlaceholder: t('rpePlaceholder'),
         setNotesLabel: t('setNotesLabel'),
+        historyTitle: t('historyTitle'),
+        historyEmpty: t('historyEmpty'),
+        historyCollapse: t('historyCollapse'),
+        historyExpand: t('historyExpand'),
         addExercise: t('addExercise'),
         addSet: t('addSet'),
         remove: t('remove'),
@@ -97,6 +108,17 @@ export default async function NewLogSessionPage({
         clearDraft: t('clearDraft'),
         clearConfirm: t('clearConfirm'),
         newExercise: t('newExercise'),
+        bodyPartsCopy: {
+          label: tb('label'),
+          placeholder: tb('placeholder'),
+          CHEST: tb('CHEST'),
+          BACK: tb('BACK'),
+          LEGS: tb('LEGS'),
+          SHOULDERS: tb('SHOULDERS'),
+          ARMS: tb('ARMS'),
+          CORE: tb('CORE'),
+          CARDIO: tb('CARDIO'),
+        },
         weightPicker: {
           title: t('weightPicker.title'),
           demoTitle: t('weightPicker.demoTitle'),

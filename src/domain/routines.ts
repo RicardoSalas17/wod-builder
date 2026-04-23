@@ -1,6 +1,7 @@
 export type RoutineExercise = {
   id: string;
   name: string;
+  bodyPart?: string;
   targetSets?: string;
   targetReps?: string;
   restSeconds?: string;

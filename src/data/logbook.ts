@@ -9,14 +9,17 @@ export type LogSessionCreateInput = {
   routineId?: string | null;
   exercises: {
     name: string;
+    bodyPart?: string | null;
     notes?: string | null;
     loadTrackingEnabled?: boolean;
+    increaseWeight?: boolean;
     routineExerciseId?: string | null;
     sets: {
       setNumber: number;
       reps?: string | null;
       load?: string | null;
       completed?: boolean;
+      rpe?: number | null;
       notes?: string | null;
     }[];
   }[];
@@ -42,8 +45,10 @@ type LogSessionRow = {
 type LogExerciseRow = {
   id: string;
   name: string;
+  bodyPart: string | null;
   notes: string | null;
   loadTrackingEnabled: number;
+  increaseWeight: number;
   position: number;
   logSessionId: string;
   routineExerciseId: string | null;
@@ -55,6 +60,7 @@ type LogSetRow = {
   reps: string | null;
   load: string | null;
   completed: number;
+  rpe: number | null;
   notes: string | null;
   logExerciseId: string;
 };
@@ -92,8 +98,10 @@ function mapLogSessionRecord(
       .map((exercise) => ({
         id: exercise.id,
         name: exercise.name,
+        bodyPart: exercise.bodyPart,
         notes: exercise.notes,
         loadTrackingEnabled: Boolean(exercise.loadTrackingEnabled),
+        increaseWeight: Boolean(exercise.increaseWeight),
         routineExerciseId: exercise.routineExerciseId,
         sets: sets
           .filter((set) => set.logExerciseId === exercise.id)
@@ -104,6 +112,7 @@ function mapLogSessionRecord(
             reps: set.reps,
             load: set.load,
             completed: Boolean(set.completed),
+            rpe: set.rpe,
             notes: set.notes,
           })),
       })),
@@ -177,12 +186,14 @@ async function replaceSessionChildren(
     const exerciseId = createId('log_exercise');
     await tx.$executeRawUnsafe(
       `INSERT INTO LogExercise (
-        id, name, notes, loadTrackingEnabled, position, logSessionId, routineExerciseId
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        id, name, bodyPart, notes, loadTrackingEnabled, increaseWeight, position, logSessionId, routineExerciseId
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       exerciseId,
       exercise.name,
+      exercise.bodyPart ?? null,
       exercise.notes ?? null,
       exercise.loadTrackingEnabled ? 1 : 0,
+      exercise.increaseWeight ? 1 : 0,
       exerciseIndex,
       sessionId,
       exercise.routineExerciseId ?? null,
@@ -191,13 +202,14 @@ async function replaceSessionChildren(
     for (const [setIndex, set] of exercise.sets.entries()) {
       await tx.$executeRawUnsafe(
         `INSERT INTO LogSet (
-          id, setNumber, reps, load, completed, notes, logExerciseId
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          id, setNumber, reps, load, completed, rpe, notes, logExerciseId
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         createId('log_set'),
         set.setNumber ?? setIndex + 1,
         set.reps ?? null,
         set.load ?? null,
         set.completed === false ? 0 : 1,
+        set.rpe ?? null,
         set.notes ?? null,
         exerciseId,
       );
@@ -258,6 +270,7 @@ export async function createLogSessionFromRoutine(routineId: string) {
   )) as Array<{
     id: string;
     name: string;
+    bodyPart: string | null;
     targetSets: number | null;
     targetReps: string | null;
     notes: string | null;
@@ -270,14 +283,17 @@ export async function createLogSessionFromRoutine(routineId: string) {
     routineId,
     exercises: exercises.map((exercise) => ({
       name: exercise.name,
+      bodyPart: exercise.bodyPart,
       notes: exercise.notes,
       loadTrackingEnabled: Boolean(exercise.loadTrackingEnabled),
+      increaseWeight: false,
       routineExerciseId: exercise.id,
       sets: Array.from({ length: exercise.targetSets ?? 1 }, (_, index) => ({
         setNumber: index + 1,
         reps: exercise.targetReps,
         load: null,
         completed: true,
+        rpe: null,
         notes: null,
       })),
     })),
@@ -371,4 +387,50 @@ export async function listLogSessions(filters: LogSessionFilters = {}) {
       return haystack.includes(query);
     })
     .sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime());
+}
+
+export type ExerciseHistoryEntry = {
+  performedAt: Date;
+  sessionTitle: string;
+  sets: { setNumber: number; reps: string | null; load: string | null; rpe: number | null }[];
+};
+
+export async function getExerciseHistory(
+  name: string,
+  limit = 5,
+): Promise<ExerciseHistoryEntry[]> {
+  const exercises = (await prisma.$queryRawUnsafe(
+    `SELECT le.id, le.name, ls.performedAt, ls.title as sessionTitle
+     FROM LogExercise le
+     JOIN LogSession ls ON ls.id = le.logSessionId
+     WHERE LOWER(le.name) = LOWER(?)
+     ORDER BY ls.performedAt DESC
+     LIMIT ?`,
+    name,
+    limit,
+  )) as Array<{ id: string; name: string; performedAt: string; sessionTitle: string }>;
+
+  if (exercises.length === 0) return [];
+
+  const exerciseIds = exercises.map((e) => e.id);
+  const sets = (await prisma.$queryRawUnsafe(
+    `SELECT id, setNumber, reps, load, rpe, logExerciseId
+     FROM LogSet
+     WHERE logExerciseId IN (${exerciseIds.map(() => '?').join(', ')})
+     ORDER BY setNumber ASC`,
+    ...exerciseIds,
+  )) as Array<{ id: string; setNumber: number; reps: string | null; load: string | null; rpe: number | null; logExerciseId: string }>;
+
+  return exercises.map((exercise) => ({
+    performedAt: new Date(exercise.performedAt),
+    sessionTitle: exercise.sessionTitle,
+    sets: sets
+      .filter((set) => set.logExerciseId === exercise.id)
+      .map((set) => ({
+        setNumber: set.setNumber,
+        reps: set.reps,
+        load: set.load,
+        rpe: set.rpe,
+      })),
+  }));
 }

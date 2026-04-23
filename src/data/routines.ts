@@ -9,6 +9,7 @@ export type RoutineCreateInput = {
     title: string;
     exercises: {
       name: string;
+      bodyPart?: string | null;
       targetSets?: number | null;
       targetReps?: string | null;
       restSeconds?: number | null;
@@ -37,6 +38,7 @@ type RoutineBlockRow = {
 type RoutineExerciseRow = {
   id: string;
   name: string;
+  bodyPart: string | null;
   targetSets: number | null;
   targetReps: string | null;
   restSeconds: number | null;
@@ -78,6 +80,7 @@ function mapRoutineRecord(
           .map((exercise) => ({
             id: exercise.id,
             name: exercise.name,
+            bodyPart: exercise.bodyPart,
             targetSets: exercise.targetSets,
             targetReps: exercise.targetReps,
             restSeconds: exercise.restSeconds,
@@ -156,10 +159,11 @@ async function replaceRoutineChildren(
     for (const [exerciseIndex, exercise] of block.exercises.entries()) {
       await tx.$executeRawUnsafe(
         `INSERT INTO RoutineExercise (
-          id, name, targetSets, targetReps, restSeconds, notes, loadTrackingEnabled, position, routineBlockId
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          id, name, bodyPart, targetSets, targetReps, restSeconds, notes, loadTrackingEnabled, position, routineBlockId
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         createId('routine_exercise'),
         exercise.name,
+        exercise.bodyPart ?? null,
         exercise.targetSets ?? null,
         exercise.targetReps ?? null,
         exercise.restSeconds ?? null,
@@ -237,6 +241,7 @@ export async function duplicateRoutine(id: string) {
       title: block.title,
       exercises: block.exercises.map((exercise) => ({
         name: exercise.name,
+        bodyPart: exercise.bodyPart,
         targetSets: exercise.targetSets,
         targetReps: exercise.targetReps,
         restSeconds: exercise.restSeconds,

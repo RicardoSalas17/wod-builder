@@ -53,8 +53,10 @@ function createExercise(): LogExercise {
   return {
     id: createId('log-exercise'),
     name: '',
+    bodyPart: undefined,
     notes: '',
     loadTrackingEnabled: false,
+    increaseWeight: false,
     helperLoad: '',
     sets: [createSet(1)],
   };

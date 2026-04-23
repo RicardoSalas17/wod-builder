@@ -16,8 +16,9 @@ export default async function LogSessionDetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, session] = await Promise.all([
+  const [t, tb, session] = await Promise.all([
     getTranslations({ locale, namespace: 'logSession' }),
+    getTranslations({ locale, namespace: 'bodyParts' }),
     getLogSessionById(id),
   ]);
 
@@ -114,12 +115,26 @@ export default async function LogSessionDetailPage({
                 className="module-card rounded-[1.5rem] border-white/8 p-5"
               >
                 <div className="relative z-10 flex flex-wrap items-start justify-between gap-3">
-                  <h3 className="font-display text-2xl leading-none tracking-[-0.02em]">
-                    {exercise.name}
-                  </h3>
-                  <span className="data-pill">
-                    {exercise.sets.length} {t('setLabel')}
-                  </span>
+                  <div>
+                    <h3 className="font-display text-2xl leading-none tracking-[-0.02em]">
+                      {exercise.name}
+                    </h3>
+                    {exercise.bodyPart ? (
+                      <span className="data-pill mt-2 inline-block text-xs">
+                        {tb(exercise.bodyPart as 'CHEST' | 'BACK' | 'LEGS' | 'SHOULDERS' | 'ARMS' | 'CORE' | 'CARDIO')}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {exercise.increaseWeight ? (
+                      <span className="data-pill text-xs text-green-400">
+                        {t('increaseWeightTag')}
+                      </span>
+                    ) : null}
+                    <span className="data-pill">
+                      {exercise.sets.length} {t('setLabel')}
+                    </span>
+                  </div>
                 </div>
                 {exercise.notes ? (
                   <p className="text-muted-foreground mt-3 leading-6">
@@ -150,6 +165,9 @@ export default async function LogSessionDetailPage({
                         ) : null}
                         {set.load ? (
                           <span className="data-pill">{set.load}</span>
+                        ) : null}
+                        {set.rpe ? (
+                          <span className="data-pill">{t('rpeShort')} {set.rpe}</span>
                         ) : null}
                         {set.notes ? (
                           <span className="data-pill">{set.notes}</span>

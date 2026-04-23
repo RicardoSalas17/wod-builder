@@ -8,6 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRoutineBuilder } from '@/hooks/use-routine-builder';
 import type { RoutineBuilderState } from '@/lib/routine-builder';
 
+type BodyPartsCopy = {
+  label: string;
+  placeholder: string;
+  CHEST: string;
+  BACK: string;
+  LEGS: string;
+  SHOULDERS: string;
+  ARMS: string;
+  CORE: string;
+  CARDIO: string;
+};
+
 type RoutineBuilderCopy = {
   title: string;
   subtitle: string;
@@ -53,6 +65,7 @@ type RoutineBuilderCopy = {
   moveExerciseUp: string;
   moveExerciseDown: string;
   newExercise: string;
+  bodyPartsCopy: BodyPartsCopy;
 };
 
 type RoutineBuilderClientProps = {
@@ -347,6 +360,23 @@ export function RoutineBuilderClient({
                                     })
                                   }
                                 />
+                                <select
+                                  className="field-input rounded-xl px-3 py-2.5"
+                                  value={exercise.bodyPart ?? ''}
+                                  onChange={(event) =>
+                                    dispatch({
+                                      type: 'update-exercise',
+                                      blockId: block.id,
+                                      exerciseId: exercise.id,
+                                      patch: { bodyPart: event.target.value || undefined },
+                                    })
+                                  }
+                                >
+                                  <option value="">{copy.bodyPartsCopy.placeholder}</option>
+                                  {(['CHEST','BACK','LEGS','SHOULDERS','ARMS','CORE','CARDIO'] as const).map((bp) => (
+                                    <option key={bp} value={bp}>{copy.bodyPartsCopy[bp]}</option>
+                                  ))}
+                                </select>
                                 <input
                                   className="field-input rounded-xl px-3 py-2.5"
                                   placeholder={copy.sets}

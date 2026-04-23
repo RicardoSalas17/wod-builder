@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,19 @@ import {
 } from '@/components/weight-picker/MovementLoadField';
 import { useLogbookBuilder } from '@/hooks/use-logbook-builder';
 import type { LogbookBuilderState } from '@/lib/logbook-builder';
+import type { ExerciseHistoryEntry } from '@/data/logbook';
+
+type BodyPartsCopy = {
+  label: string;
+  placeholder: string;
+  CHEST: string;
+  BACK: string;
+  LEGS: string;
+  SHOULDERS: string;
+  ARMS: string;
+  CORE: string;
+  CARDIO: string;
+};
 
 type LogSessionBuilderCopy = {
   title: string;
@@ -27,11 +40,18 @@ type LogSessionBuilderCopy = {
   notesPlaceholder: string;
   exerciseName: string;
   exerciseNotesLabel: string;
+  increaseWeightLabel: string;
   setLabel: string;
   repsLabel: string;
   loadLabel: string;
   completedLabel: string;
+  rpeLabel: string;
+  rpePlaceholder: string;
   setNotesLabel: string;
+  historyTitle: string;
+  historyEmpty: string;
+  historyCollapse: string;
+  historyExpand: string;
   addExercise: string;
   addSet: string;
   remove: string;
@@ -50,6 +70,7 @@ type LogSessionBuilderCopy = {
   clearConfirm: string;
   newExercise: string;
   weightPicker: WeightPickerCopy;
+  bodyPartsCopy: BodyPartsCopy;
 };
 
 type LogSessionBuilderClientProps = {
@@ -71,11 +92,45 @@ export function LogSessionBuilderClient({
 }: LogSessionBuilderClientProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [historyMap, setHistoryMap] = useState<Record<string, ExerciseHistoryEntry[]>>({});
+  const [historyVisible, setHistoryVisible] = useState<Set<string>>(new Set());
   const router = useRouter();
   const { state, dispatch, reset } = useLogbookBuilder({
     initialState,
     storageKey,
   });
+
+  const fetchHistory = useCallback(async (exerciseId: string, name: string) => {
+    if (name.trim().length < 2) return;
+    try {
+      const res = await fetch(
+        `/api/logbook/exercises/history?name=${encodeURIComponent(name.trim())}&limit=5`,
+      );
+      if (!res.ok) return;
+      const data = (await res.json()) as { history: ExerciseHistoryEntry[] };
+      setHistoryMap((prev) => ({ ...prev, [exerciseId]: data.history }));
+    } catch {
+      // silently ignore
+    }
+  }, []);
+
+  const toggleHistory = useCallback(
+    (exerciseId: string, name: string) => {
+      setHistoryVisible((prev) => {
+        const next = new Set(prev);
+        if (next.has(exerciseId)) {
+          next.delete(exerciseId);
+        } else {
+          next.add(exerciseId);
+          if (!historyMap[exerciseId]) {
+            fetchHistory(exerciseId, name);
+          }
+        }
+        return next;
+      });
+    },
+    [historyMap, fetchHistory],
+  );
   const totalSets = state.exercises.reduce(
     (total, exercise) => total + exercise.sets.length,
     0,
@@ -274,18 +329,90 @@ export function LogSessionBuilderClient({
                             {copy.exerciseName}{' '}
                             {String(exerciseIndex + 1).padStart(2, '0')}
                           </span>
-                          <input
-                            className="field-input"
-                            placeholder={copy.exerciseName}
-                            value={exercise.name}
-                            onChange={(event) =>
-                              dispatch({
-                                type: 'update-exercise',
-                                exerciseId: exercise.id,
-                                patch: { name: event.target.value },
-                              })
-                            }
-                          />
+                          <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                            <input
+                              className="field-input"
+                              placeholder={copy.exerciseName}
+                              value={exercise.name}
+                              onChange={(event) =>
+                                dispatch({
+                                  type: 'update-exercise',
+                                  exerciseId: exercise.id,
+                                  patch: { name: event.target.value },
+                                })
+                              }
+                            />
+                            <select
+                              className="field-input rounded-xl px-3 py-2.5 text-sm"
+                              value={exercise.bodyPart ?? ''}
+                              onChange={(event) =>
+                                dispatch({
+                                  type: 'update-exercise',
+                                  exerciseId: exercise.id,
+                                  patch: { bodyPart: event.target.value || undefined },
+                                })
+                              }
+                            >
+                              <option value="">{copy.bodyPartsCopy.placeholder}</option>
+                              {(['CHEST','BACK','LEGS','SHOULDERS','ARMS','CORE','CARDIO'] as const).map((bp) => (
+                                <option key={bp} value={bp}>{copy.bodyPartsCopy[bp]}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <label className="text-foreground flex min-h-9 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={exercise.increaseWeight}
+                                className="h-4 w-4 accent-[var(--accent)]"
+                                onChange={(event) =>
+                                  dispatch({
+                                    type: 'update-exercise',
+                                    exerciseId: exercise.id,
+                                    patch: { increaseWeight: event.target.checked },
+                                  })
+                                }
+                              />
+                              {copy.increaseWeightLabel}
+                            </label>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => toggleHistory(exercise.id, exercise.name)}
+                            >
+                              {historyVisible.has(exercise.id)
+                                ? copy.historyCollapse
+                                : copy.historyExpand}
+                            </Button>
+                          </div>
+                          {historyVisible.has(exercise.id) ? (
+                            <div className="rounded-[1.15rem] border border-white/8 bg-black/15 p-3 text-sm">
+                              <p className="section-label mb-2">{copy.historyTitle}</p>
+                              {!historyMap[exercise.id] ? (
+                                <p className="text-muted-foreground">…</p>
+                              ) : historyMap[exercise.id].length === 0 ? (
+                                <p className="text-muted-foreground">{copy.historyEmpty}</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {historyMap[exercise.id].map((entry, i) => (
+                                    <div key={i} className="rounded-xl border border-white/6 bg-black/10 px-3 py-2">
+                                      <p className="text-muted-foreground text-xs mb-1">
+                                        {new Date(entry.performedAt).toLocaleDateString()}
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {entry.sets.map((s) => (
+                                          <span key={s.setNumber} className="data-pill text-xs">
+                                            {s.reps ?? '—'} × {s.load ?? '—'}
+                                            {s.rpe ? ` · RPE ${s.rpe}` : ''}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : null}
                         </div>
                         <Button
                           size="sm"
@@ -377,7 +504,7 @@ export function LogSessionBuilderClient({
                                 {copy.remove}
                               </Button>
                             </div>
-                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                               <input
                                 className="field-input rounded-xl px-3 py-2.5"
                                 placeholder={copy.repsLabel}
@@ -403,6 +530,23 @@ export function LogSessionBuilderClient({
                                     patch: { load: event.target.value },
                                   })
                                 }
+                              />
+                              <input
+                                className="field-input rounded-xl px-3 py-2.5"
+                                placeholder={`${copy.rpeLabel} ${copy.rpePlaceholder}`}
+                                type="number"
+                                min={1}
+                                max={10}
+                                value={set.rpe ?? ''}
+                                onChange={(event) => {
+                                  const val = event.target.value === '' ? undefined : Number(event.target.value);
+                                  dispatch({
+                                    type: 'update-set',
+                                    exerciseId: exercise.id,
+                                    setId: set.id,
+                                    patch: { rpe: val },
+                                  });
+                                }}
                               />
                               <label className="text-foreground flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm">
                                 <input

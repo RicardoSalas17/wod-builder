@@ -12,7 +12,10 @@ export default async function NewRoutinePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations({ locale, namespace: 'routinesBuilder' });
+  const [t, tb] = await Promise.all([
+    getTranslations({ locale, namespace: 'routinesBuilder' }),
+    getTranslations({ locale, namespace: 'bodyParts' }),
+  ]);
 
   return (
     <RoutineBuilderClient
@@ -61,6 +64,17 @@ export default async function NewRoutinePage({
         moveExerciseUp: t('moveExerciseUp'),
         moveExerciseDown: t('moveExerciseDown'),
         newExercise: t('newExercise'),
+        bodyPartsCopy: {
+          label: tb('label'),
+          placeholder: tb('placeholder'),
+          CHEST: tb('CHEST'),
+          BACK: tb('BACK'),
+          LEGS: tb('LEGS'),
+          SHOULDERS: tb('SHOULDERS'),
+          ARMS: tb('ARMS'),
+          CORE: tb('CORE'),
+          CARDIO: tb('CARDIO'),
+        },
       }}
     />
   );

@@ -20,8 +20,10 @@ function toBuilderState(
       (exercise: (typeof session.exercises)[number]) => ({
         id: exercise.id,
         name: exercise.name,
+        bodyPart: exercise.bodyPart ?? undefined,
         notes: exercise.notes ?? '',
         loadTrackingEnabled: exercise.loadTrackingEnabled,
+        increaseWeight: exercise.increaseWeight,
         helperLoad: '',
         sets: exercise.sets.map((set: (typeof exercise.sets)[number]) => ({
           id: set.id,
@@ -29,6 +31,7 @@ function toBuilderState(
           reps: set.reps ?? '',
           load: set.load ?? '',
           completed: set.completed,
+          rpe: set.rpe ?? undefined,
           notes: set.notes ?? '',
         })),
       }),
@@ -44,8 +47,9 @@ export default async function EditLogSessionPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, session] = await Promise.all([
+  const [t, tb, session] = await Promise.all([
     getTranslations({ locale, namespace: 'logbookBuilder' }),
+    getTranslations({ locale, namespace: 'bodyParts' }),
     getLogSessionById(id),
   ]);
 
@@ -70,11 +74,18 @@ export default async function EditLogSessionPage({
         notesPlaceholder: t('notesPlaceholder'),
         exerciseName: t('exerciseName'),
         exerciseNotesLabel: t('exerciseNotesLabel'),
+        increaseWeightLabel: t('increaseWeightLabel'),
         setLabel: t('setLabel'),
         repsLabel: t('repsLabel'),
         loadLabel: t('loadLabel'),
         completedLabel: t('completedLabel'),
+        rpeLabel: t('rpeLabel'),
+        rpePlaceholder: t('rpePlaceholder'),
         setNotesLabel: t('setNotesLabel'),
+        historyTitle: t('historyTitle'),
+        historyEmpty: t('historyEmpty'),
+        historyCollapse: t('historyCollapse'),
+        historyExpand: t('historyExpand'),
         addExercise: t('addExercise'),
         addSet: t('addSet'),
         remove: t('remove'),
@@ -92,6 +103,17 @@ export default async function EditLogSessionPage({
         clearDraft: t('clearDraft'),
         clearConfirm: t('clearConfirm'),
         newExercise: t('newExercise'),
+        bodyPartsCopy: {
+          label: tb('label'),
+          placeholder: tb('placeholder'),
+          CHEST: tb('CHEST'),
+          BACK: tb('BACK'),
+          LEGS: tb('LEGS'),
+          SHOULDERS: tb('SHOULDERS'),
+          ARMS: tb('ARMS'),
+          CORE: tb('CORE'),
+          CARDIO: tb('CARDIO'),
+        },
         weightPicker: {
           title: t('weightPicker.title'),
           demoTitle: t('weightPicker.demoTitle'),

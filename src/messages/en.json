@@ -257,6 +257,17 @@
     "applyFilters": "Apply filters",
     "clearFilters": "Clear filters"
   },
+  "bodyParts": {
+    "label": "Body part",
+    "placeholder": "Select",
+    "CHEST": "Chest",
+    "BACK": "Back",
+    "LEGS": "Legs",
+    "SHOULDERS": "Shoulders",
+    "ARMS": "Biceps / Triceps",
+    "CORE": "Core",
+    "CARDIO": "Cardio / Full body"
+  },
   "logbookBuilder": {
     "title": "Session log",
     "subtitle": "New session",
@@ -273,11 +284,18 @@
     "notesPlaceholder": "How it felt, energy, technique, or any observations",
     "exerciseName": "Exercise",
     "exerciseNotesLabel": "Exercise notes",
+    "increaseWeightLabel": "↑ Increase weight next session",
     "setLabel": "Set",
     "repsLabel": "Reps",
     "loadLabel": "Load",
     "completedLabel": "Completed",
+    "rpeLabel": "RPE",
+    "rpePlaceholder": "1-10",
     "setNotesLabel": "Set note",
+    "historyTitle": "History",
+    "historyEmpty": "No previous records",
+    "historyCollapse": "Hide history",
+    "historyExpand": "View history",
     "addExercise": "Add exercise",
     "addSet": "Add set",
     "remove": "Remove",
@@ -345,6 +363,8 @@
     "setLabel": "Set",
     "doneTag": "done",
     "skippedTag": "skipped",
+    "rpeShort": "RPE",
+    "increaseWeightTag": "↑ Increase weight",
     "back": "Back to logbook"
   },
   "timer": {

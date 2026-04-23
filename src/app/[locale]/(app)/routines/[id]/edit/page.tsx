@@ -21,6 +21,7 @@ function toBuilderState(
         (exercise: (typeof block.exercises)[number]) => ({
           id: exercise.id,
           name: exercise.name,
+          bodyPart: exercise.bodyPart ?? undefined,
           targetSets: exercise.targetSets?.toString() ?? '',
           targetReps: exercise.targetReps ?? '',
           restSeconds: exercise.restSeconds?.toString() ?? '',
@@ -40,8 +41,9 @@ export default async function EditRoutinePage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, routine] = await Promise.all([
+  const [t, tb, routine] = await Promise.all([
     getTranslations({ locale, namespace: 'routinesBuilder' }),
+    getTranslations({ locale, namespace: 'bodyParts' }),
     getRoutineById(id),
   ]);
 
@@ -96,6 +98,17 @@ export default async function EditRoutinePage({
         moveExerciseUp: t('moveExerciseUp'),
         moveExerciseDown: t('moveExerciseDown'),
         newExercise: t('newExercise'),
+        bodyPartsCopy: {
+          label: tb('label'),
+          placeholder: tb('placeholder'),
+          CHEST: tb('CHEST'),
+          BACK: tb('BACK'),
+          LEGS: tb('LEGS'),
+          SHOULDERS: tb('SHOULDERS'),
+          ARMS: tb('ARMS'),
+          CORE: tb('CORE'),
+          CARDIO: tb('CARDIO'),
+        },
       }}
       initialState={toBuilderState(routine)}
       saveEndpoint={`/api/routines/${routine.id}`}
